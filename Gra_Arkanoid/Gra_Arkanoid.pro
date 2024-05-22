@@ -8,8 +8,11 @@ SOURCES += \
         Block.cpp \
         Bonus.cpp \
         Game.cpp \
+        HighScore.cpp \
         Menu.cpp \
         Paddle.cpp \
+        Shop.cpp \
+        SoundManager.cpp \
         main.cpp
 INCLUDEPATH += "C:/SFML-2.5.1/include"
 LIBS += -L"C:/SFML-2.5.1/lib"
@@ -24,5 +27,8 @@ HEADERS += \
     Block.h \
     Bonus.h \
     Game.h \
+    HighScore.h \
     Menu.h \
-    Paddle.h
+    Paddle.h \
+    Shop.h \
+    SoundManager.h
