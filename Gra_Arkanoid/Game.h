@@ -12,7 +12,7 @@ public:
     void run();
 
 private:
-
+    sf::RenderWindow mWindow;
 
 };
 
