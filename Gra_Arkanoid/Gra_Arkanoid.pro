@@ -4,7 +4,12 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
+        Ball.cpp \
+        Block.cpp \
+        Bonus.cpp \
         Game.cpp \
+        Menu.cpp \
+        Paddle.cpp \
         main.cpp
 INCLUDEPATH += "C:/SFML-2.5.1/include"
 LIBS += -L"C:/SFML-2.5.1/lib"
@@ -15,4 +20,9 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    Game.h
+    Ball.h \
+    Block.h \
+    Bonus.h \
+    Game.h \
+    Menu.h \
+    Paddle.h
