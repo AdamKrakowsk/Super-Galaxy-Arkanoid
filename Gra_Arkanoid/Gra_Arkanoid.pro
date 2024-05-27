@@ -10,6 +10,7 @@ SOURCES += \
         Game.cpp \
         HighScore.cpp \
         Menu.cpp \
+        Object.cpp \
         Paddle.cpp \
         Shop.cpp \
         SoundManager.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     Game.h \
     HighScore.h \
     Menu.h \
+    Object.h \
     Paddle.h \
     Shop.h \
     SoundManager.h
