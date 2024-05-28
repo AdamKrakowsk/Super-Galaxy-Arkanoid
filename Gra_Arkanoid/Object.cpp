@@ -1,3 +1,3 @@
 #include "Object.h"
 
-Object::Object() {}
+Object::Object(const sf::Texture& texture) : sf::Sprite(texture) {}

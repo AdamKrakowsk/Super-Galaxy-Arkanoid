@@ -1,7 +1,17 @@
 #include "Game.h"
+#include "Object.h"
 
 Game::Game() : mWindow(sf::VideoMode(800,600), "Super Galaxy Arkanoid")
-{}
+{
+    m_backgroundTexture.loadFromFile("background.png");
+
+    // Ustawianie tła
+    m_backgroundSprite.setTexture(m_backgroundTexture);
+    m_backgroundSprite.setScale(static_cast<float>(mWindow.getSize().x) / m_backgroundTexture.getSize().x,
+                                static_cast<float>(mWindow.getSize().y) / m_backgroundTexture.getSize().y);
+}
+
+Game::~Game() {}
 
 void Game::run() {
     sf::Clock clock;

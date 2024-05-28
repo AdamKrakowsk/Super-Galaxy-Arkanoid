@@ -1,10 +1,13 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-class Object
+#include <SFML/Graphics.hpp>
+
+
+class Object : public sf::Sprite
 {
 public:
-    Object();
+    Object(const sf::Texture& texture);
 };
 
 #endif // OBJECT_H
