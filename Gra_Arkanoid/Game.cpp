@@ -7,7 +7,8 @@
 
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
-    m_PaddleSpeed(200.0f) {
+    m_paddle(m_paddleTexture),
+    m_PaddleSpeed(400.0f) {
 }
 
 Game::~Game() {}
@@ -68,6 +69,9 @@ void Game::render() {
 void Game::createPaddle() {
     m_paddleSprite.setTexture(m_paddleTexture);
     m_paddleSprite.setPosition(50, 800);
+
+    // Można ustawić inne rozmiary paletki tutaj
+    m_paddle.setSize(10.f, 30.f);
 
     // while (checkCollisionWithWalls(m_paddleSprite.getGlobalBounds())) {
     //     m_paddleSprite.move(10, 0);

@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include <memory>
 #include <vector>
+#include "Paddle.h"
 
 class Object;
 
@@ -18,6 +19,7 @@ public:
 private:
 
      void render();
+     void createPaddle();
 
 
     sf::RenderWindow mWindow;
@@ -26,9 +28,10 @@ private:
     sf::Sprite m_backgroundSprite;
     sf::Texture m_paddleTexture;
     sf::Sprite m_paddleSprite;
+    Paddle m_paddle;
 
 
-    void createPaddle();
+
     float m_PaddleSpeed;
     sf::Vector2f m_PaddleVelocity;
 
