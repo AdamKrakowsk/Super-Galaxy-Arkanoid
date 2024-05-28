@@ -6,7 +6,7 @@ int main()
 {
      Game game;
      game.run();
-    cout<<"fiut";
+
     return 0;
 
 }

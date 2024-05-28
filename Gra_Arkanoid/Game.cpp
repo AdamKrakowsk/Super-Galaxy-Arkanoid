@@ -1,30 +1,41 @@
 #include "Game.h"
 #include "Object.h"
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <iostream>
 
-Game::Game() : mWindow(sf::VideoMode(800,600), "Super Galaxy Arkanoid")
+Game::Game() : mWindow(sf::VideoMode(1728,972), "Super Galaxy Arkanoid")
 {
-    m_backgroundTexture.loadFromFile("background.png");
 
-    // Ustawianie tła
-    m_backgroundSprite.setTexture(m_backgroundTexture);
-    m_backgroundSprite.setScale(static_cast<float>(mWindow.getSize().x) / m_backgroundTexture.getSize().x,
-                                static_cast<float>(mWindow.getSize().y) / m_backgroundTexture.getSize().y);
 }
 
 Game::~Game() {}
 
 void Game::run() {
     sf::Clock clock;
-    sf::ConvexShape triangle;
-    triangle.setPointCount(3);
-    triangle.setPoint(0, sf::Vector2f(0.0, 0.0));
-    triangle.setPoint(1, sf::Vector2f(0.0, 100.0));
-    triangle.setPoint(2, sf::Vector2f(140.0, 40.0));
-    triangle.setOutlineColor(sf::Color::Red);
-    triangle.setOutlineThickness(5);
-    triangle.setPosition(600.0, 100.0);
-    while (mWindow.isOpen()) {
+    //ładowanie tekstury tła
+    sf::Texture backgroundTexture;
+    if (!backgroundTexture.loadFromFile("background.png")) {
+        // Obsługa błędu ładowania pliku
+        std::cerr << "Error: Could not load background.png" << std::endl;
+        return;
+    }
 
-        mWindow.draw(triangle);
+    sf::Sprite background(backgroundTexture);
+    background.setScale(
+        mWindow.getSize().x / static_cast<float>(backgroundTexture.getSize().x),
+        mWindow.getSize().y / static_cast<float>(backgroundTexture.getSize().y)
+        );
+
+    while (mWindow.isOpen()) {
+        sf::Event event;
+        while (mWindow.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                mWindow.close();
+        }
+
+        mWindow.clear();
+        mWindow.draw(background);
+        mWindow.display();
     }
 }
