@@ -16,10 +16,22 @@ public:
     void run();
 
 private:
+
+     void render();
+
+
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
     sf::Texture m_backgroundTexture;
     sf::Sprite m_backgroundSprite;
+    sf::Texture m_paddleTexture;
+    sf::Sprite m_paddleSprite;
+
+
+    void createPaddle();
+    float m_PaddleSpeed;
+    sf::Vector2f m_PaddleVelocity;
+
 
 };
 

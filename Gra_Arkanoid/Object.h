@@ -8,6 +8,7 @@ class Object : public sf::Sprite
 {
 public:
     Object(const sf::Texture& texture);
+
 };
 
 #endif // OBJECT_H
