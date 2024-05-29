@@ -3,13 +3,14 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <filesystem>
 
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
     m_PaddleSpeed(800.0f),
-    m_ball(m_ballTexture){
+    m_BallSpeed(400.0f),
+    m_ball(m_ballTexture),
+    m_ballVelocity(-m_BallSpeed, -m_BallSpeed){
 }
 
 Game::~Game() {}
@@ -26,7 +27,7 @@ void Game::run() {
         std::cerr << "Error: Could not load paletka.png" << std::endl;
         return;
     }
-
+    // Ładowanie tekstury pilki
     if (!m_ballTexture.loadFromFile("pilka.png")) {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
@@ -52,6 +53,7 @@ void Game::run() {
 
     while (mWindow.isOpen()) {
         sf::Event event;
+        mWindow.setFramerateLimit(120);
         while (mWindow.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 mWindow.close();
@@ -69,7 +71,7 @@ void Game::run() {
         sf::Time deltaTime = clock.restart();
         sf::Vector2f newPosition = m_paddleSprite.getPosition() + m_PaddleVelocity * deltaTime.asSeconds();
 
-        // Check boundaries
+        // sprawdzanie granic okna dla paletki
         if (newPosition.x < 0) {
             newPosition.x = 0;
         }
@@ -78,6 +80,30 @@ void Game::run() {
         }
 
         m_paddleSprite.setPosition(newPosition);
+        // Ruch piłki
+        m_ballSprite.move(m_ballVelocity * deltaTime.asSeconds()*100.0f);
+
+        // sprawdzanie granic okna dla pilki
+        sf::Vector2f ballPosition = m_ballSprite.getPosition();
+        if (ballPosition.x < 10 || ballPosition.x + m_ballSprite.getGlobalBounds().width+10 > mWindow.getSize().x) {
+            m_ballVelocity.x = -m_ballVelocity.x;
+        }
+        if (ballPosition.y < 10) {
+            m_ballVelocity.y = -m_ballVelocity.y;
+        }
+
+        // Check collision with paddle
+        if (m_ballSprite.getGlobalBounds().intersects(m_paddleSprite.getGlobalBounds())) {
+            m_ballVelocity.y = -m_ballVelocity.y;
+            // Optionally adjust x velocity based on where the ball hit the paddle
+        }
+
+        // Check if ball is below the paddle (lose condition)
+        if (ballPosition.y > mWindow.getSize().y) {
+            // Reset ball position and velocity (you can customize this as needed)
+            m_ballSprite.setPosition(864, 600);
+            m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
+        }
         render();
     }
 }
@@ -86,7 +112,7 @@ void Game::render() {
     mWindow.clear();
     mWindow.draw(m_backgroundSprite);
     mWindow.draw(m_paddleSprite);
-    mWindow.draw(m_ball);
+    mWindow.draw(m_ballSprite);
     for (const auto& obj : m_objects) {
         mWindow.draw(*obj);
     }
@@ -112,13 +138,25 @@ void Game::createPaddle() {
     m_paddleSprite.setScale(scaleX, scaleY);
 }
 
-
 void Game::createBall() {
-    m_ball.setTexture(m_ballTexture);
-    m_ball.setPosition(100, 100);
-    m_ball.setSize(20.f, 20.f);  // Przykładowe wymiary
-    m_ball.setVelocity(sf::Vector2f(200.f, 200.f));  // Przykładowa prędkość
+    m_ballSprite.setTexture(m_ballTexture);
+    m_ballSprite.setPosition(864, 600);
+    float originalWidth = m_ballTexture.getSize().x;
+    float originalHeight = m_ballTexture.getSize().y;
+
+    // pilki
+    float desiredWidth = 20.f;
+    float desiredHeight = 20.f;
+
+
+    float scaleX = desiredWidth / originalWidth;
+    float scaleY = desiredHeight / originalHeight;
+
+    // skalowanie pilki
+    m_ballSprite.setScale(scaleX, scaleY);
+
 }
+
 
 void Game::createBlocks() {
     // Tworzenie przykładowych bloków
@@ -126,7 +164,7 @@ void Game::createBlocks() {
         for (int j = 0; j < 3; ++j) {
             Block block(m_blockTexture);
             block.setPosition(200.f + i * 100.f, 50.f + j * 50.f);
-            block.setSize(80.f, 30.f);  // Przykładowe wymiary
+            block.setSize(80.f, 30.f);
             m_objects.push_back(std::make_unique<Block>(block));
         }
     }

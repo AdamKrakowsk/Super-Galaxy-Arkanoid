@@ -35,12 +35,16 @@ private:
     sf::Sprite m_paddleSprite;
     Paddle m_paddle;
     sf::Texture m_ballTexture;
+    sf::Sprite m_ballSprite;
     sf::Texture m_blockTexture;
+    sf::Sprite m_blockSprite;
     Ball m_ball;
 
     float m_PaddleSpeed;
     sf::Vector2f m_PaddleVelocity;
 
+    float m_BallSpeed;
+    sf::Vector2f m_ballVelocity;
 
 };
 
