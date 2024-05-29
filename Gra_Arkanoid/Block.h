@@ -1,10 +1,11 @@
 #ifndef BLOCK_H
 #define BLOCK_H
+#include "Object.h"
 
-class Block
+class Block : public Object
 {
 public:
-    Block();
+    Block(const sf::Texture& texture);
 };
 
 #endif // BLOCK_H

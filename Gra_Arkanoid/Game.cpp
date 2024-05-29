@@ -8,7 +8,8 @@
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
-    m_PaddleSpeed(800.0f) {
+    m_PaddleSpeed(800.0f),
+    m_ball(m_ballTexture){
 }
 
 Game::~Game() {}
@@ -26,6 +27,16 @@ void Game::run() {
         return;
     }
 
+    if (!m_ballTexture.loadFromFile("pilka.png")) {
+        std::cerr << "Error: Could not load pilka.png" << std::endl;
+        return;
+    }
+    // Ładowanie tekstury bloku
+    if (!m_blockTexture.loadFromFile("blok.png")) {
+        std::cerr << "Error: Could not load blok.png" << std::endl;
+        return;
+    }
+
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
         mWindow.getSize().x / static_cast<float>(m_backgroundTexture.getSize().x),
@@ -34,6 +45,10 @@ void Game::run() {
 
     // Tworzenie paletki
     createPaddle();
+    // Tworzenie piłki
+    createBall();
+    // Tworzenie bloków
+    createBlocks();
 
     while (mWindow.isOpen()) {
         sf::Event event;
@@ -71,6 +86,7 @@ void Game::render() {
     mWindow.clear();
     mWindow.draw(m_backgroundSprite);
     mWindow.draw(m_paddleSprite);
+    mWindow.draw(m_ball);
     for (const auto& obj : m_objects) {
         mWindow.draw(*obj);
     }
@@ -80,13 +96,13 @@ void Game::render() {
 //tworzenie paletki
 void Game::createPaddle() {
     m_paddleSprite.setTexture(m_paddleTexture);
-    m_paddleSprite.setPosition(864, 870);
+    m_paddleSprite.setPosition(864, 900);
     float originalWidth = m_paddleTexture.getSize().x;
     float originalHeight = m_paddleTexture.getSize().y;
 
     // wymiary paletki
     float desiredWidth = 200.f;
-    float desiredHeight = 30.f;
+    float desiredHeight = 50.f;
 
 
     float scaleX = desiredWidth / originalWidth;
@@ -94,4 +110,24 @@ void Game::createPaddle() {
 
     // skalowanie paletki
     m_paddleSprite.setScale(scaleX, scaleY);
+}
+
+
+void Game::createBall() {
+    m_ball.setTexture(m_ballTexture);
+    m_ball.setPosition(100, 100);
+    m_ball.setSize(20.f, 20.f);  // Przykładowe wymiary
+    m_ball.setVelocity(sf::Vector2f(200.f, 200.f));  // Przykładowa prędkość
+}
+
+void Game::createBlocks() {
+    // Tworzenie przykładowych bloków
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            Block block(m_blockTexture);
+            block.setPosition(200.f + i * 100.f, 50.f + j * 50.f);
+            block.setSize(80.f, 30.f);  // Przykładowe wymiary
+            m_objects.push_back(std::make_unique<Block>(block));
+        }
+    }
 }

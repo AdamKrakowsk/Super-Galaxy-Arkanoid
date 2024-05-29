@@ -6,6 +6,9 @@
 #include <memory>
 #include <vector>
 #include "Paddle.h"
+#include "Ball.h"
+#include "Block.h"
+
 
 class Object;
 
@@ -20,6 +23,8 @@ private:
 
      void render();
      void createPaddle();
+     void createBall();
+     void createBlocks();
 
 
     sf::RenderWindow mWindow;
@@ -29,8 +34,9 @@ private:
     sf::Texture m_paddleTexture;
     sf::Sprite m_paddleSprite;
     Paddle m_paddle;
-
-
+    sf::Texture m_ballTexture;
+    sf::Texture m_blockTexture;
+    Ball m_ball;
 
     float m_PaddleSpeed;
     sf::Vector2f m_PaddleVelocity;
