@@ -8,7 +8,7 @@
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
-    m_PaddleSpeed(400.0f) {
+    m_PaddleSpeed(800.0f) {
 }
 
 Game::~Game() {}
@@ -44,18 +44,29 @@ void Game::run() {
 
         // Ruch paletki
         m_PaddleVelocity = sf::Vector2f(0.0f, 0.0f);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
             m_PaddleVelocity.x -= m_PaddleSpeed;
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
             m_PaddleVelocity.x += m_PaddleSpeed;
         }
         m_paddleSprite.move(m_PaddleVelocity * clock.restart().asSeconds());
+        sf::Time deltaTime = clock.restart();
+        sf::Vector2f newPosition = m_paddleSprite.getPosition() + m_PaddleVelocity * deltaTime.asSeconds();
 
+        // Check boundaries
+        if (newPosition.x < 0) {
+            newPosition.x = 0;
+        }
+        if (newPosition.x + m_paddleSprite.getGlobalBounds().width > mWindow.getSize().x) {
+            newPosition.x = mWindow.getSize().x - m_paddleSprite.getGlobalBounds().width;
+        }
+
+        m_paddleSprite.setPosition(newPosition);
         render();
     }
 }
-
+//renderowanie okna
 void Game::render() {
     mWindow.clear();
     mWindow.draw(m_backgroundSprite);
@@ -66,14 +77,21 @@ void Game::render() {
     mWindow.display();
 }
 
+//tworzenie paletki
 void Game::createPaddle() {
     m_paddleSprite.setTexture(m_paddleTexture);
-    m_paddleSprite.setPosition(50, 800);
+    m_paddleSprite.setPosition(864, 870);
+    float originalWidth = m_paddleTexture.getSize().x;
+    float originalHeight = m_paddleTexture.getSize().y;
 
-    // Można ustawić inne rozmiary paletki tutaj
-    m_paddle.setSize(10.f, 30.f);
+    // wymiary paletki
+    float desiredWidth = 200.f;
+    float desiredHeight = 30.f;
 
-    // while (checkCollisionWithWalls(m_paddleSprite.getGlobalBounds())) {
-    //     m_paddleSprite.move(10, 0);
-    // }
+
+    float scaleX = desiredWidth / originalWidth;
+    float scaleY = desiredHeight / originalHeight;
+
+    // skalowanie paletki
+    m_paddleSprite.setScale(scaleX, scaleY);
 }
