@@ -9,23 +9,22 @@
 #include "Ball.h"
 #include "Block.h"
 
-
 class Object;
 
-class Game
-{
+class Game {
 public:
     Game();
     ~Game();
     void run();
 
 private:
-
-     void render();
-     void createPaddle();
-     void createBall();
-     void createBlocks();
-
+    void render();
+    void processEvents();
+    void update(sf::Time deltaTime);
+    void handlePlayerInput(sf::Keyboard::Key key, bool isPressed);
+    void createPaddle();
+    void createBall();
+    void createBlocks();
 
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
@@ -33,11 +32,12 @@ private:
     sf::Sprite m_backgroundSprite;
     sf::Texture m_paddleTexture;
     sf::Sprite m_paddleSprite;
-    Paddle m_paddle;
     sf::Texture m_ballTexture;
     sf::Sprite m_ballSprite;
     sf::Texture m_blockTexture;
     sf::Sprite m_blockSprite;
+
+    Paddle m_paddle;
     Ball m_ball;
 
     float m_PaddleSpeed;
@@ -46,6 +46,8 @@ private:
     float m_BallSpeed;
     sf::Vector2f m_ballVelocity;
 
+    bool m_isMovingLeft = false;
+    bool m_isMovingRight = false;
 };
 
 #endif // GAME_H

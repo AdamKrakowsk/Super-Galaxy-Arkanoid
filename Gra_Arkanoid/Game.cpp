@@ -1,43 +1,43 @@
 #include "Game.h"
+#include "Object.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <cstdlib>
-#include <random>
+
+const sf::Time TimePerFrame = sf::seconds(1.f / 240.f);
 
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
     m_ball(m_ballTexture),
     m_PaddleSpeed(800.0f),
-    m_BallSpeed(40000.0f),
-    m_ballVelocity(-m_BallSpeed, -m_BallSpeed){
+    m_BallSpeed(500.0f),
+    m_ballVelocity(-m_BallSpeed, -m_BallSpeed) {
 }
 
 Game::~Game() {}
 
 void Game::run() {
     sf::Clock clock;
-    // Ładowanie tekstury tła
+    sf::Time timeSinceLastUpdate = sf::Time::Zero;
+
+    // Load textures
     if (!m_backgroundTexture.loadFromFile("background.png")) {
         std::cerr << "Error: Could not load background.png" << std::endl;
         return;
     }
-    // Ładowanie tekstury paletki
     if (!m_paddleTexture.loadFromFile("paletka.png")) {
         std::cerr << "Error: Could not load paletka.png" << std::endl;
         return;
     }
-    // Ładowanie tekstury pilki
     if (!m_ballTexture.loadFromFile("pilka.png")) {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
-    // // Ładowanie tekstury bloku
-    // if (!m_blockTexture.loadFromFile("blok.png")) {
-    //     std::cerr << "Error: Could not load blok.png" << std::endl;
-    //     return;
-    // }
+    if (!m_blockTexture.loadFromFile("blok.png")) {
+        std::cerr << "Error: Could not load blok.png" << std::endl;
+        return;
+    }
 
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -45,70 +45,87 @@ void Game::run() {
         mWindow.getSize().y / static_cast<float>(m_backgroundTexture.getSize().y)
         );
 
-    // Tworzenie paletki
     createPaddle();
-    // Tworzenie piłki
     createBall();
-    // Tworzenie bloków
     createBlocks();
 
     while (mWindow.isOpen()) {
-        sf::Event event;
-        mWindow.setFramerateLimit(120);
-        while (mWindow.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                mWindow.close();
-        }
-
-        // Ruch paletki
-        m_PaddleVelocity = sf::Vector2f(0.0f, 0.0f);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            m_PaddleVelocity.x -= m_PaddleSpeed;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            m_PaddleVelocity.x += m_PaddleSpeed;
-        }
-        m_paddleSprite.move(m_PaddleVelocity * clock.restart().asSeconds());
-        sf::Time deltaTime = clock.restart();
-        sf::Vector2f newPosition = m_paddleSprite.getPosition() + m_PaddleVelocity * deltaTime.asSeconds();
-
-        // sprawdzanie granic okna dla paletki
-        if (newPosition.x < 0) {
-            newPosition.x = 0;
-        }
-        if (newPosition.x + m_paddleSprite.getGlobalBounds().width > mWindow.getSize().x) {
-            newPosition.x = mWindow.getSize().x - m_paddleSprite.getGlobalBounds().width;
-        }
-
-        m_paddleSprite.setPosition(newPosition);
-        // Ruch piłki
-        m_ballSprite.move(m_ballVelocity * deltaTime.asSeconds()*100.0f);
-
-        // sprawdzanie granic okna dla pilki
-        sf::Vector2f ballPosition = m_ballSprite.getPosition();
-        if (ballPosition.x < 10 || ballPosition.x + m_ballSprite.getGlobalBounds().width+10 > mWindow.getSize().x) {
-            m_ballVelocity.x = -m_ballVelocity.x;
-        }
-        if (ballPosition.y < 10) {
-            m_ballVelocity.y = -m_ballVelocity.y;
-        }
-
-        // Check collision with paddle
-        if (m_ballSprite.getGlobalBounds().intersects(m_paddleSprite.getGlobalBounds())) {
-            m_ballVelocity.y = -m_ballVelocity.y;
-            // Optionally adjust x velocity based on where the ball hit the paddle
-        }
-
-        // Check if ball is below the paddle (lose condition)
-        if (ballPosition.y > mWindow.getSize().y) {
-            // Reset ball position and velocity (you can customize this as needed)
-            m_ballSprite.setPosition(864, 600);
-            m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
+        processEvents();
+        timeSinceLastUpdate += clock.restart();
+        while (timeSinceLastUpdate > TimePerFrame) {
+            timeSinceLastUpdate -= TimePerFrame;
+            processEvents();
+            update(TimePerFrame);
         }
         render();
     }
 }
-//renderowanie okna
+
+void Game::processEvents() {
+    sf::Event event;
+    while (mWindow.pollEvent(event)) {
+        if (event.type == sf::Event::Closed)
+            mWindow.close();
+        if (event.type == sf::Event::KeyPressed)
+            handlePlayerInput(event.key.code, true);
+        if (event.type == sf::Event::KeyReleased)
+            handlePlayerInput(event.key.code, false);
+    }
+}
+
+void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
+    if (key == sf::Keyboard::A || key == sf::Keyboard::Left) {
+        m_isMovingLeft = isPressed;
+    }
+    else if (key == sf::Keyboard::D || key == sf::Keyboard::Right) {
+        m_isMovingRight = isPressed;
+    }
+}
+
+void Game::update(sf::Time deltaTime) {
+    sf::Vector2f movement(0.f, 0.f);
+    if (m_isMovingLeft)
+        movement.x -= m_PaddleSpeed;
+    if (m_isMovingRight)
+        movement.x += m_PaddleSpeed;
+
+    m_paddleSprite.move(movement * deltaTime.asSeconds());
+    sf::Vector2f newPosition = m_paddleSprite.getPosition();
+
+    // sprawdzanie granic dla paletki
+    if (newPosition.x < 0) {
+        newPosition.x = 0;
+    }
+    if (newPosition.x + m_paddleSprite.getGlobalBounds().width > mWindow.getSize().x) {
+        newPosition.x = mWindow.getSize().x - m_paddleSprite.getGlobalBounds().width;
+    }
+    m_paddleSprite.setPosition(newPosition);
+
+    // aktualizacja ruchu pilki
+    m_ballSprite.move(m_ballVelocity * deltaTime.asSeconds());
+    sf::Vector2f ballPosition = m_ballSprite.getPosition();
+
+    // sprawdzanie granic dla pilki
+    if (ballPosition.x < 0 || ballPosition.x + m_ballSprite.getGlobalBounds().width > mWindow.getSize().x) {
+        m_ballVelocity.x = -m_ballVelocity.x;
+    }
+    if (ballPosition.y < 0) {
+        m_ballVelocity.y = -m_ballVelocity.y;
+    }
+
+    // sprawdzanie kolizji z paletka
+    if (m_ballSprite.getGlobalBounds().intersects(m_paddleSprite.getGlobalBounds())) {
+        m_ballVelocity.y = -m_ballVelocity.y;
+        // Optionally adjust x velocity based on where the ball hit the paddle
+    }
+
+    // resetowanie pilki jak dotknie dolu okna
+    if (ballPosition.y > mWindow.getSize().y) {
+        m_ballSprite.setPosition(864, 600);
+        m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
+    }
+}
+
 void Game::render() {
     mWindow.clear();
     mWindow.draw(m_backgroundSprite);
@@ -120,22 +137,18 @@ void Game::render() {
     mWindow.display();
 }
 
-//tworzenie paletki
 void Game::createPaddle() {
     m_paddleSprite.setTexture(m_paddleTexture);
     m_paddleSprite.setPosition(864, 900);
     float originalWidth = m_paddleTexture.getSize().x;
     float originalHeight = m_paddleTexture.getSize().y;
 
-    // wymiary paletki
     float desiredWidth = 200.f;
     float desiredHeight = 50.f;
-
 
     float scaleX = desiredWidth / originalWidth;
     float scaleY = desiredHeight / originalHeight;
 
-    // skalowanie paletki
     m_paddleSprite.setScale(scaleX, scaleY);
 }
 
@@ -145,23 +158,14 @@ void Game::createBall() {
     float originalWidth = m_ballTexture.getSize().x;
     float originalHeight = m_ballTexture.getSize().y;
 
-    // pilki
     float desiredWidth = 20.f;
     float desiredHeight = 20.f;
-
 
     float scaleX = desiredWidth / originalWidth;
     float scaleY = desiredHeight / originalHeight;
 
-    // skalowanie pilki
     m_ballSprite.setScale(scaleX, scaleY);
-
 }
-
-
-
-
-
 
 void Game::createBlocks() {
 
