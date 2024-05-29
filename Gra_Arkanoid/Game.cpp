@@ -1,15 +1,16 @@
 #include "Game.h"
-#include "Object.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cstdlib>
+#include <random>
 
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
+    m_ball(m_ballTexture),
     m_PaddleSpeed(800.0f),
     m_BallSpeed(40000.0f),
-    m_ball(m_ballTexture),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed){
 }
 
@@ -32,11 +33,11 @@ void Game::run() {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
-    // Ładowanie tekstury bloku
-    if (!m_blockTexture.loadFromFile("blok.png")) {
-        std::cerr << "Error: Could not load blok.png" << std::endl;
-        return;
-    }
+    // // Ładowanie tekstury bloku
+    // if (!m_blockTexture.loadFromFile("blok.png")) {
+    //     std::cerr << "Error: Could not load blok.png" << std::endl;
+    //     return;
+    // }
 
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -158,15 +159,50 @@ void Game::createBall() {
 }
 
 
+
+
+
+
 void Game::createBlocks() {
-    // Tworzenie przykładowych bloków
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            sf::Color color = (j % 2 == 0) ? sf::Color::Red : sf::Color::Green;
-            int hp = (j % 2 == 0) ? 2 : 1;
-            Block block(80.f, 30.f, color, hp);
-            block.setPosition(200.f + i * 100.f, 50.f + j * 50.f);
+
+    // Tworzenie przykładowych bloków i wierszy i kolumn
+    int rows = 6;
+    int columns = 17;
+    float blockWidth = 80.f;
+    float blockHeight = 30.f;
+    float startX = 30.f;        // miejsca początkowe
+    float startY = 50.f;
+    float horizontalSpacing = 20.f; // Odstęp w poziomie
+    float verticalSpacing = 20.f; // Odstęp w pionie
+    srand(time(0));         // dodanie losowości
+    int tab[columns][rows];
+    for (int i = 0; i < columns; ++i) {
+        for (int j = 0; j < rows; ++j) {
+            tab[i][j]=rand()%3;
+        }
+    }
+
+        // Pętla pozwalająca na ustawienie kolumn, wierszy, kolorów, hp
+    for (int i = 0; i < columns; ++i) {
+        for (int j = 0; j < rows; ++j) {
+            sf::Color color;
+            int hp = 0;
+
+            if (tab[i][j] == 0) {
+                color = sf::Color::Red;
+                hp = 3;
+            } else if (tab[i][j] == 1) {
+                color = sf::Color::Green;
+                hp = 2;
+            } else if (tab[i][j] == 2) {
+                color = sf::Color::Blue;
+                hp = 1;
+            }
+            Block block(blockWidth, blockHeight, color, hp);
+            block.setPosition(startX + i * (blockWidth + horizontalSpacing), startY + j * (blockHeight + verticalSpacing));
             m_objects.push_back(std::make_unique<Block>(block));
         }
     }
 }
+
+
