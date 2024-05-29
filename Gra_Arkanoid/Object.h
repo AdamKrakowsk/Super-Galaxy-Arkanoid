@@ -14,7 +14,7 @@ public:
     float getWidth() ;
     float getHeight() ;
 
-private:
+protected:
     float mWidth;
     float mHeight;
 

@@ -8,7 +8,7 @@ Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
     m_PaddleSpeed(800.0f),
-    m_BallSpeed(400.0f),
+    m_BallSpeed(40000.0f),
     m_ball(m_ballTexture),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed){
 }
@@ -162,9 +162,10 @@ void Game::createBlocks() {
     // Tworzenie przykładowych bloków
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < 3; ++j) {
-            Block block(m_blockTexture);
+            sf::Color color = (j % 2 == 0) ? sf::Color::Red : sf::Color::Green;
+            int hp = (j % 2 == 0) ? 2 : 1;
+            Block block(80.f, 30.f, color, hp);
             block.setPosition(200.f + i * 100.f, 50.f + j * 50.f);
-            block.setSize(80.f, 30.f);
             m_objects.push_back(std::make_unique<Block>(block));
         }
     }
