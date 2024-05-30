@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Block.h"
+#include "Bonus.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -214,11 +215,12 @@ void Game::update(sf::Time deltaTime) {
             if (m_ballSprite.getGlobalBounds().intersects(object->getBounds())) {
                 m_ballVelocity.y = -m_ballVelocity.y;
                 object->takeDamage();
-                sm.collision_sound();
-
+                if (object->isDestroyed()) {
+                    createBonus(object->getBounds().left, object->getBounds().top);
+                }
             }
         }
-    }
+
     // Zaktualizuj teksty z aktualnym czasem i highscore
     m_currentTimeText.setString("Time: " + std::to_string(static_cast<int>(m_gameClock.getElapsedTime().asSeconds())));
     m_highscoreText.setString("Highscore: " + std::to_string(m_highscore.getHighscore()));
@@ -233,6 +235,21 @@ void Game::update(sf::Time deltaTime) {
     }
 
 }
+    for (auto& bonus : m_bonuses) {
+        bonus.update(deltaTime);
+        if (bonus.getBounds().intersects(m_paddleSprite.getGlobalBounds()) && !bonus.isCaught()) {
+            bonus.catchBonus();
+            m_BallSpeed *= 1.15f; // Increase ball speed by 15%
+            m_ballVelocity.x *= 1.15f;
+            m_ballVelocity.y *= 1.15f;
+        }
+    }
+
+    m_bonuses.erase(std::remove_if(m_bonuses.begin(), m_bonuses.end(), [](const Bonus& bonus) {
+                        return bonus.isCaught() || bonus.getBounds().top > 972; // Remove caught bonuses or those out of the window
+                    }), m_bonuses.end());
+}
+
 
 void Game::render() {
     mWindow.clear();
@@ -242,6 +259,10 @@ void Game::render() {
     for (const auto& obj : m_objects) {
         mWindow.draw(*obj);
     }
+    for (auto& bonus : m_bonuses) {
+        bonus.render(mWindow);
+    }
+
     mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
     mWindow.draw(m_highscoreText); // Wyświetlanie highscore
     m_highscore.draw(mWindow);
@@ -261,6 +282,12 @@ void Game::render() {
     }
 
     mWindow.display();
+}
+void Game::createBonus(float x, float y) {
+    Bonus bonus;
+    bonus.createBonus();
+    bonus.setPosition(x, y);
+    m_bonuses.push_back(bonus);
 }
 
 void Game::createPaddle() {

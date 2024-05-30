@@ -11,6 +11,7 @@
 #include "SoundManager.h"
 #include "Highscore.h"
 #include "Timer.h"
+#include "Bonus.h"
 
 class Object;
 
@@ -29,7 +30,7 @@ private:
     void createBall();
     void createBlocks();
     void restartGame();
-
+    void createBonus(float x, float y);
 
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
@@ -41,7 +42,7 @@ private:
     sf::Sprite m_ballSprite;
     sf::Texture m_blockTexture;
     sf::Sprite m_blockSprite;
-
+    std::vector<Bonus> m_bonuses;
 
     Paddle m_paddle;
     Ball m_ball;
