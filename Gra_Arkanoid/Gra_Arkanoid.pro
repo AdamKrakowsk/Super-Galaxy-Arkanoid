@@ -14,6 +14,7 @@ SOURCES += \
         Paddle.cpp \
         Shop.cpp \
         SoundManager.cpp \
+        Timer.cpp \
         main.cpp
 INCLUDEPATH += "C:/SFML-2.5.1/include"
 LIBS += -L"C:/SFML-2.5.1/lib"
@@ -33,4 +34,5 @@ HEADERS += \
     Object.h \
     Paddle.h \
     Shop.h \
-    SoundManager.h
+    SoundManager.h \
+    Timer.h

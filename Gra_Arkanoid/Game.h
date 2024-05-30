@@ -9,6 +9,8 @@
 #include "Ball.h"
 #include "Block.h"
 #include "SoundManager.h"
+#include "Highscore.h"
+#include "Timer.h"
 
 class Object;
 
@@ -53,6 +55,11 @@ private:
     bool m_isMovingLeft = false;
     bool m_isMovingRight = false;
     bool m_isBallAttached = true;
+
+    Highscore m_highscore;
+    Timer m_timer;
+     sf::Clock m_gameClock; // Zegar do mierzenia czasu trwania gry
+
 };
 
 #endif // GAME_H

@@ -14,7 +14,8 @@ Game::Game()
     m_ball(m_ballTexture),
     m_PaddleSpeed(800.0f),
     m_BallSpeed(600.0f),
-    m_ballVelocity(-m_BallSpeed, -m_BallSpeed) {
+    m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
+    m_highscore(){
 }
 
 Game::~Game() {}
@@ -22,6 +23,7 @@ Game::~Game() {}
 void Game::run() {
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
+     m_gameClock.restart();
 
 
     // Load textures
@@ -59,6 +61,11 @@ void Game::run() {
             timeSinceLastUpdate -= TimePerFrame;
             processEvents();
             update(TimePerFrame);
+
+            if (m_gameClock.getElapsedTime().asSeconds() > m_highscore.getHighscore()) {
+                // Jeśli czas trwania gry jest krótszy niż highscore, zaktualizuj highscore
+                m_highscore.setHighscore(static_cast<int>(m_gameClock.getElapsedTime().asSeconds()));
+            }
 
             for (auto it = m_objects.begin(); it != m_objects.end(); ) {
                 m_ball.handleCollision(**it);
@@ -186,6 +193,9 @@ void Game::render() {
     for (const auto& obj : m_objects) {
         mWindow.draw(*obj);
     }
+    m_highscore.draw(mWindow);
+    m_timer.update();
+    m_timer.draw(mWindow);
     mWindow.display();
 }
 
@@ -222,12 +232,12 @@ void Game::createBall() {
 void Game::createBlocks() {
 
     // Tworzenie przykładowych bloków i wierszy i kolumn
-    int rows = 6;
+    int rows = 2;
     int columns = 17;
     float blockWidth = 80.f;
     float blockHeight = 30.f;
     float startX = 30.f;        // miejsca początkowe
-    float startY = 50.f;
+    float startY = 100.f;
     float horizontalSpacing = 20.f; // Odstęp w poziomie
     float verticalSpacing = 20.f; // Odstęp w pionie
     srand(time(0));         // dodanie losowości
