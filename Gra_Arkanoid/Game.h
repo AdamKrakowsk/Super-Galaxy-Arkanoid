@@ -8,6 +8,7 @@
 #include "Paddle.h"
 #include "Ball.h"
 #include "Block.h"
+#include "SoundManager.h"
 
 class Object;
 
@@ -26,6 +27,7 @@ private:
     void createBall();
     void createBlocks();
 
+
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
     sf::Texture m_backgroundTexture;
@@ -37,8 +39,10 @@ private:
     sf::Texture m_blockTexture;
     sf::Sprite m_blockSprite;
 
+
     Paddle m_paddle;
     Ball m_ball;
+    SoundManager sm;
 
     float m_PaddleSpeed;
     float m_BallSpeed;

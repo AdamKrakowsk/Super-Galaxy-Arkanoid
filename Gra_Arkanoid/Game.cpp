@@ -2,6 +2,7 @@
 #include "Block.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <cmath>
 
@@ -22,6 +23,7 @@ void Game::run() {
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
 
+
     // Load textures
     if (!m_backgroundTexture.loadFromFile("background.png")) {
         std::cerr << "Error: Could not load background.png" << std::endl;
@@ -35,10 +37,8 @@ void Game::run() {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
-    // if (!m_blockTexture.loadFromFile("blok.png")) {
-    //     std::cerr << "Error: Could not load blok.png" << std::endl;
-    //     return;
-    // }
+
+    sm.Soundtrack_play();
 
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -89,6 +89,7 @@ void Game::processEvents() {
     }
 }
 
+
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
     if (key == sf::Keyboard::A || key == sf::Keyboard::Left) {
         m_isMovingLeft = isPressed;
@@ -135,9 +136,11 @@ void Game::update(sf::Time deltaTime) {
         // sprawdzanie granic dla pilki
         if (ballPosition.x < 0 || ballPosition.x + m_ballSprite.getGlobalBounds().width > mWindow.getSize().x) {
             m_ballVelocity.x = -m_ballVelocity.x;
+
         }
         if (ballPosition.y < 0) {
             m_ballVelocity.y = -m_ballVelocity.y;
+            sm.collision_sound();
         }
 
         // sprawdzanie kolizji z paletka
@@ -153,6 +156,7 @@ void Game::update(sf::Time deltaTime) {
             float speed = sqrt(m_ballVelocity.x * m_ballVelocity.x + m_ballVelocity.y * m_ballVelocity.y);
             m_ballVelocity.x = speed * sin(bounceAngle);
             m_ballVelocity.y = -speed * cos(bounceAngle);
+            sm.collision_sound();
         }
 
         // resetowanie pilki jak dotknie dolu okna
@@ -167,6 +171,8 @@ void Game::update(sf::Time deltaTime) {
             if (m_ballSprite.getGlobalBounds().intersects(object->getBounds())) {
                 m_ballVelocity.y = -m_ballVelocity.y;
                 object->takeDamage();
+                sm.collision_sound();
+
             }
         }
     }
