@@ -7,7 +7,7 @@ void SoundManager::Soundtrack_play(){
         return;
     }
     soundtrack.setBuffer(soundtrack_buffer);
-    soundtrack.setVolume(5);
+    soundtrack.setVolume(2);
     soundtrack.play();
 }
 void SoundManager::collision_sound(){

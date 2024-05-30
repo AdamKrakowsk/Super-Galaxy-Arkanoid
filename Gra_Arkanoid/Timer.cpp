@@ -4,10 +4,10 @@ Timer::Timer() {
     if (!m_font.loadFromFile("arial.ttf")) {
         // Obsługa błędu ładowania czcionki
     }
-    m_text.setFont(m_font);
-    m_text.setCharacterSize(50);
-    m_text.setFillColor(sf::Color::White);
-    m_text.setPosition(750, 20); // Ustaw górę na środku
+    // m_text.setFont(m_font);
+    // m_text.setCharacterSize(50);
+    // m_text.setFillColor(sf::Color::White);
+    // m_text.setPosition(750, 10); // Ustaw górę na środku
 }
 
 void Timer::restart() {

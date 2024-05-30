@@ -12,10 +12,11 @@ Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
     m_ball(m_ballTexture),
-    m_PaddleSpeed(800.0f),
-    m_BallSpeed(600.0f),
+    m_PaddleSpeed(1000.0f),
+    m_BallSpeed(1000.0f),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
-    m_highscore(){
+    m_highscore(),
+    m_gameOver(false){
 }
 
 Game::~Game() {}
@@ -39,6 +40,23 @@ void Game::run() {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
+
+    if (!m_font.loadFromFile("arial.ttf")) {
+        std::cerr << "Error: Could not load font arial.ttf" << std::endl;
+    }
+
+
+
+    m_currentTimeText.setFont(m_font);
+    m_currentTimeText.setCharacterSize(50);
+    m_currentTimeText.setFillColor(sf::Color::White);
+    m_currentTimeText.setPosition(mWindow.getSize().x / 2.f - 100.f, 10.f);
+
+    m_highscoreText.setFont(m_font);
+    m_highscoreText.setCharacterSize(50);
+    m_highscoreText.setFillColor(sf::Color::White);
+    m_highscoreText.setPosition(10.f, 10.f);
+
 
     sm.Soundtrack_play();
 
@@ -96,8 +114,23 @@ void Game::processEvents() {
     }
 }
 
+void Game::restartGame() {
+    m_gameOver = false;
+    m_isBallAttached = true;
+    m_ballSprite.setPosition(864, 600);
+    m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
+    m_paddleSprite.setPosition(864, 900);
+    createBlocks();
+    m_gameClock.restart();
+}
+
+
+
 
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
+    if (m_gameOver && key == sf::Keyboard::R && isPressed) {
+        restartGame();
+    }
     if (key == sf::Keyboard::A || key == sf::Keyboard::Left) {
         m_isMovingLeft = isPressed;
     }
@@ -111,6 +144,9 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
 }
 
 void Game::update(sf::Time deltaTime) {
+    if (m_gameOver) return;
+
+
     sf::Vector2f movement(0.f, 0.f);
     if (m_isMovingLeft)
         movement.x -= m_PaddleSpeed;
@@ -183,6 +219,19 @@ void Game::update(sf::Time deltaTime) {
             }
         }
     }
+    // Zaktualizuj teksty z aktualnym czasem i highscore
+    m_currentTimeText.setString("Time: " + std::to_string(static_cast<int>(m_gameClock.getElapsedTime().asSeconds())));
+    m_highscoreText.setString("Highscore: " + std::to_string(m_highscore.getHighscore()));
+
+    if (m_objects.empty()) {
+        m_gameOver = true;
+        int finalTime = static_cast<int>(m_gameClock.getElapsedTime().asSeconds());
+        if (finalTime < m_highscore.getHighscore() || m_highscore.getHighscore() == 0) {
+            m_highscore.setHighscore(finalTime);
+            m_highscore.saveHighscore();
+        }
+    }
+
 }
 
 void Game::render() {
@@ -193,9 +242,24 @@ void Game::render() {
     for (const auto& obj : m_objects) {
         mWindow.draw(*obj);
     }
+    mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
+    mWindow.draw(m_highscoreText); // Wyświetlanie highscore
     m_highscore.draw(mWindow);
-    m_timer.update();
-    m_timer.draw(mWindow);
+
+    if (m_gameOver) {
+        sf::Text gameOverText;
+        gameOverText.setFont(m_font);
+        gameOverText.setString("Game Over! Press R to Restart");
+        gameOverText.setCharacterSize(30);
+        gameOverText.setFillColor(sf::Color::White);
+        gameOverText.setPosition(
+            mWindow.getSize().x / 2.f - gameOverText.getLocalBounds().width / 2.f,
+            mWindow.getSize().y / 2.f - gameOverText.getLocalBounds().height / 2.f
+            );
+        mWindow.draw(gameOverText);
+
+    }
+
     mWindow.display();
 }
 
@@ -232,11 +296,11 @@ void Game::createBall() {
 void Game::createBlocks() {
 
     // Tworzenie przykładowych bloków i wierszy i kolumn
-    int rows = 2;
-    int columns = 17;
+    int rows = 1;
+    int columns = 5; //17
     float blockWidth = 80.f;
     float blockHeight = 30.f;
-    float startX = 30.f;        // miejsca początkowe
+    float startX = 30.f;        // miejsca początkowe 30
     float startY = 100.f;
     float horizontalSpacing = 20.f; // Odstęp w poziomie
     float verticalSpacing = 20.f; // Odstęp w pionie

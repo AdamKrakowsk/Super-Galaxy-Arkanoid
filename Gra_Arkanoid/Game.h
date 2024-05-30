@@ -28,6 +28,7 @@ private:
     void createPaddle();
     void createBall();
     void createBlocks();
+    void restartGame();
 
 
     sf::RenderWindow mWindow;
@@ -58,8 +59,11 @@ private:
 
     Highscore m_highscore;
     Timer m_timer;
-     sf::Clock m_gameClock; // Zegar do mierzenia czasu trwania gry
-
+    sf::Clock m_gameClock; // Zegar do mierzenia czasu trwania gry
+    bool m_gameOver;
+    sf::Font m_font;  // Dodajemy czcionkę
+    sf::Text m_currentTimeText;  // Tekst aktualnego czasu
+    sf::Text m_highscoreText;  // Tekst highscore
 };
 
 #endif // GAME_H

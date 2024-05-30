@@ -9,13 +9,13 @@ public:
     Highscore(); // Konstruktor
 
     // Metody do zarządzania highscore
-    int getHighscore() const; // Pobierz aktualny highscore
-    void setHighscore(int newHighscore); // Ustaw nowy highscore
+    int getHighscore() const;
+    void setHighscore(int highscore);
     void draw(sf::RenderWindow& window) const;
 
 
-    void saveToFile(const std::string& filename); // Zapisz highscore do pliku
-    void loadFromFile(const std::string& filename); // Wczytaj highscore z pliku
+    void saveHighscore();
+    void loadHighscore();
 
 private:
     int m_highscore;

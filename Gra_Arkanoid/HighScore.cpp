@@ -1,40 +1,45 @@
 #include "Highscore.h"
 #include <fstream>
+#include <iostream>
 #include <SFML/Graphics.hpp>
 
-Highscore::Highscore() : m_highscore(0) {}
+Highscore::Highscore() : m_highscore() {
+    loadHighscore();
+}
 
 int Highscore::getHighscore() const {
     return m_highscore;
 }
 
 void Highscore::draw(sf::RenderWindow& window) const {
-    // Logika rysowania highscore na ekranie
+
 }
 
 
 
-void Highscore::setHighscore(int newHighscore) {
-    m_highscore = newHighscore;
+void Highscore::setHighscore(int highscore) {
+    if (highscore < m_highscore) {
+        m_highscore = highscore;
+    }
 }
 
-void Highscore::saveToFile(const std::string& filename) {
-    std::ofstream file(filename.c_str()); // poprawna inicjalizacja obiektu plikowego
+void Highscore::saveHighscore() {
+    std::ofstream file("highscore.txt");
     if (file.is_open()) {
         file << m_highscore;
         file.close();
     } else {
-        std::cerr << "Error: Could not open file for writing." << std::endl;
+        std::cerr << "Error: Could not open highscore.txt for writing" << std::endl;
     }
 }
 
-void Highscore::loadFromFile(const std::string& filename) {
-    std::ifstream file(filename.c_str()); // poprawna inicjalizacja obiektu plikowego
+void Highscore::loadHighscore() {
+    std::ifstream file("highscore.txt");
     if (file.is_open()) {
         file >> m_highscore;
         file.close();
     } else {
-        std::cerr << "Error: Could not open file for reading." << std::endl;
+        std::cerr << "Error: Could not open highscore.txt for reading" << std::endl;
     }
 }
 
