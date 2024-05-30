@@ -41,9 +41,9 @@ private:
     Ball m_ball;
 
     float m_PaddleSpeed;
-    sf::Vector2f m_PaddleVelocity;
-
     float m_BallSpeed;
+
+    sf::Vector2f m_PaddleVelocity;
     sf::Vector2f m_ballVelocity;
 
     bool m_isMovingLeft = false;

@@ -1,24 +1,47 @@
 #include "Ball.h"
 
-Ball::Ball(const sf::Texture& texture) : Object(texture), mVelocity(0.f, 0.f) {}
-
-// void Ball::update(sf::Time deltaTime) {
-//     move(mVelocity * deltaTime.asSeconds());
-
-//     // Sprawdzenie kolizji z granicami okna
-//     sf::FloatRect bounds = getGlobalBounds();
-//     if (bounds.left < 0 || bounds.left + bounds.width > 1728) {
-//         mVelocity.x = -mVelocity.x;
-//     }
-//     if (bounds.top < 0 || bounds.top + bounds.height > 972) {
-//         mVelocity.y = -mVelocity.y;
-//     }
-// }
-
-void Ball::setVelocity(const sf::Vector2f& velocity) {
-    mVelocity = velocity;
+Ball::Ball(sf::Texture& texture) : m_sprite(texture), m_speed(300.0f) {
+    m_sprite.setScale(0.1f, 0.1f); // Skalowanie piłki, jeśli jest zbyt duża
+    mVelocity = sf::Vector2f(-m_speed, -m_speed);
 }
 
-const sf::Vector2f& Ball::getVelocity() const {
-    return mVelocity;
+void Ball::draw(sf::RenderWindow& window) const {
+    window.draw(m_sprite);
+}
+
+void Ball::update(float dt) {
+    m_sprite.move(mVelocity * dt);
+
+    sf::FloatRect bounds = m_sprite.getGlobalBounds();
+
+    if (bounds.left <= 0 || bounds.left + bounds.width >= 1728) {
+        mVelocity.x = -mVelocity.x;
+    }
+
+    if (bounds.top <= 0) {
+        mVelocity.y = -mVelocity.y;
+    }
+}
+
+void Ball::handleCollision(Object& object) {
+    if (m_sprite.getGlobalBounds().intersects(object.getBounds())) {
+        mVelocity.y = -mVelocity.y;
+        object.takeDamage();
+    }
+}
+
+void Ball::setPosition(float x, float y) {
+    m_sprite.setPosition(x, y);
+}
+
+sf::FloatRect Ball::getBounds() const {
+    return m_sprite.getGlobalBounds();
+}
+
+bool Ball::isDestroyed() const {
+    return 1;
+}
+
+void Ball::takeDamage() {
+
 }

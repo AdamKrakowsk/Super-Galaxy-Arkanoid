@@ -1,6 +1,8 @@
 #include "Object.h"
 
-Object::Object(const sf::Texture& texture) : sf::Sprite(texture), mWidth(0), mHeight(0) {}
+Object::Object(const sf::Texture& t) {}
+Object::Object() {}
+
 
 void Object::setSize(float width, float height) {
     mWidth = width;

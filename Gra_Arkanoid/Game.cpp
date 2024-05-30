@@ -1,5 +1,5 @@
 #include "Game.h"
-#include "Object.h"
+#include "Block.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -11,7 +11,7 @@ Game::Game()
     m_paddle(m_paddleTexture),
     m_ball(m_ballTexture),
     m_PaddleSpeed(800.0f),
-    m_BallSpeed(500.0f),
+    m_BallSpeed(600.0f),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed) {
 }
 
@@ -34,10 +34,10 @@ void Game::run() {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
-    if (!m_blockTexture.loadFromFile("blok.png")) {
-        std::cerr << "Error: Could not load blok.png" << std::endl;
-        return;
-    }
+    // if (!m_blockTexture.loadFromFile("blok.png")) {
+    //     std::cerr << "Error: Could not load blok.png" << std::endl;
+    //     return;
+    // }
 
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -49,6 +49,8 @@ void Game::run() {
     createBall();
     createBlocks();
 
+
+
     while (mWindow.isOpen()) {
         processEvents();
         timeSinceLastUpdate += clock.restart();
@@ -56,6 +58,19 @@ void Game::run() {
             timeSinceLastUpdate -= TimePerFrame;
             processEvents();
             update(TimePerFrame);
+
+            for (auto it = m_objects.begin(); it != m_objects.end(); ) {
+                m_ball.handleCollision(**it);
+
+                // Usuwanie zniszczonych bloków
+                if ((*it)->isDestroyed()) {
+                    it = m_objects.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+
+
         }
         render();
     }
@@ -124,6 +139,16 @@ void Game::update(sf::Time deltaTime) {
         m_ballSprite.setPosition(864, 600);
         m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
     }
+
+    // sprawdzanie kolizji z blokami
+    for (auto& object : m_objects) {
+        if (m_ballSprite.getGlobalBounds().intersects(object->getBounds())) {
+            m_ballVelocity.y = -m_ballVelocity.y;
+            object->takeDamage();
+
+        }
+    }
+
 }
 
 void Game::render() {
