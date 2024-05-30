@@ -31,6 +31,8 @@ private:
     void createBlocks();
     void restartGame();
     void createBonus(float x, float y);
+    void saveCoinsToFile(const std::string& filename);
+    void loadCoinsFromFile(const std::string& filename);
 
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
@@ -65,6 +67,9 @@ private:
     sf::Font m_font;  // Dodajemy czcionkę
     sf::Text m_currentTimeText;  // Tekst aktualnego czasu
     sf::Text m_highscoreText;  // Tekst highscore
+
+    int coins;
+    sf::Text m_coinsText;
 };
 
 #endif // GAME_H

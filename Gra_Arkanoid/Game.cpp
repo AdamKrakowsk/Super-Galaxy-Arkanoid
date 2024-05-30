@@ -6,6 +6,7 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 #include <cmath>
+#include <fstream>
 
 const sf::Time TimePerFrame = sf::seconds(1.f / 240.f);
 
@@ -17,10 +18,14 @@ Game::Game()
     m_BallSpeed(1000.0f),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
     m_highscore(),
-    m_gameOver(false){
+    m_gameOver(false),
+    coins(0){
+
+    loadCoinsFromFile("coins.txt");
+
 }
 
-Game::~Game() {}
+Game::~Game() {saveCoinsToFile("coins.txt");}
 
 void Game::run() {
     sf::Clock clock;
@@ -58,6 +63,10 @@ void Game::run() {
     m_highscoreText.setFillColor(sf::Color::White);
     m_highscoreText.setPosition(10.f, 10.f);
 
+    m_coinsText.setFont(m_font);
+    m_coinsText.setCharacterSize(50);
+    m_coinsText.setFillColor(sf::Color::White);
+    m_coinsText.setPosition(mWindow.getSize().x - 250, 10);
 
     sm.Soundtrack_play();
 
@@ -217,6 +226,9 @@ void Game::update(sf::Time deltaTime) {
                 object->takeDamage();
                 if (object->isDestroyed()) {
                     createBonus(object->getBounds().left, object->getBounds().top);
+
+                    // Zwiększanie liczby coinsów za uderzenie w blok
+                    coins += 1;
                 }
             }
         }
@@ -224,6 +236,7 @@ void Game::update(sf::Time deltaTime) {
     // Zaktualizuj teksty z aktualnym czasem i highscore
     m_currentTimeText.setString("Time: " + std::to_string(static_cast<int>(m_gameClock.getElapsedTime().asSeconds())));
     m_highscoreText.setString("Highscore: " + std::to_string(m_highscore.getHighscore()));
+    m_coinsText.setString("Coins: " + std::to_string(coins));
 
     if (m_objects.empty()) {
         m_gameOver = true;
@@ -263,9 +276,7 @@ void Game::render() {
         bonus.render(mWindow);
     }
 
-    mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
-    mWindow.draw(m_highscoreText); // Wyświetlanie highscore
-    m_highscore.draw(mWindow);
+
 
     if (m_gameOver) {
         sf::Text gameOverText;
@@ -280,7 +291,10 @@ void Game::render() {
         mWindow.draw(gameOverText);
 
     }
-
+    mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
+    mWindow.draw(m_highscoreText); // Wyświetlanie highscore
+    mWindow.draw(m_coinsText); // Wyświetlanie liczby coinsów
+    m_highscore.draw(mWindow);
     mWindow.display();
 }
 void Game::createBonus(float x, float y) {
@@ -362,4 +376,23 @@ void Game::createBlocks() {
     }
 }
 
+void Game::saveCoinsToFile(const std::string& filename) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        file << coins;
+        file.close();
+    } else {
+        std::cerr << "Error: Could not open file for writing." << std::endl;
+    }
+}
+
+void Game::loadCoinsFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (file.is_open()) {
+        file >> coins;
+        file.close();
+    } else {
+        std::cerr << "Error: Could not open file for reading." << std::endl;
+    }
+}
 
