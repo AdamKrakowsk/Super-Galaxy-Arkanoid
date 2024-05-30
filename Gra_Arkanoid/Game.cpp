@@ -3,6 +3,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cmath>
 
 const sf::Time TimePerFrame = sf::seconds(1.f / 240.f);
 
@@ -95,6 +96,10 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
     else if (key == sf::Keyboard::D || key == sf::Keyboard::Right) {
         m_isMovingRight = isPressed;
     }
+    else if (key == sf::Keyboard::Space && isPressed && m_isBallAttached) {
+        m_isBallAttached = false;
+        m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);  // Wystrzelenie piłki
+    }
 }
 
 void Game::update(sf::Time deltaTime) {
@@ -116,39 +121,55 @@ void Game::update(sf::Time deltaTime) {
     }
     m_paddleSprite.setPosition(newPosition);
 
-    // aktualizacja ruchu pilki
-    m_ballSprite.move(m_ballVelocity * deltaTime.asSeconds());
-    sf::Vector2f ballPosition = m_ballSprite.getPosition();
+    if (m_isBallAttached) {
+        // Aktualizacja pozycji piłki, gdy jest przyklejona do paletki
+        m_ballSprite.setPosition(
+            m_paddleSprite.getPosition().x + m_paddleSprite.getGlobalBounds().width / 2.f - m_ballSprite.getGlobalBounds().width / 2.f,
+            m_paddleSprite.getPosition().y - m_ballSprite.getGlobalBounds().height
+            );
+    } else {
+        // aktualizacja ruchu pilki
+        m_ballSprite.move(m_ballVelocity * deltaTime.asSeconds());
+        sf::Vector2f ballPosition = m_ballSprite.getPosition();
 
-    // sprawdzanie granic dla pilki
-    if (ballPosition.x < 0 || ballPosition.x + m_ballSprite.getGlobalBounds().width > mWindow.getSize().x) {
-        m_ballVelocity.x = -m_ballVelocity.x;
-    }
-    if (ballPosition.y < 0) {
-        m_ballVelocity.y = -m_ballVelocity.y;
-    }
-
-    // sprawdzanie kolizji z paletka
-    if (m_ballSprite.getGlobalBounds().intersects(m_paddleSprite.getGlobalBounds())) {
-        m_ballVelocity.y = -m_ballVelocity.y;
-        // Optionally adjust x velocity based on where the ball hit the paddle
-    }
-
-    // resetowanie pilki jak dotknie dolu okna
-    if (ballPosition.y > mWindow.getSize().y) {
-        m_ballSprite.setPosition(864, 600);
-        m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
-    }
-
-    // sprawdzanie kolizji z blokami
-    for (auto& object : m_objects) {
-        if (m_ballSprite.getGlobalBounds().intersects(object->getBounds())) {
+        // sprawdzanie granic dla pilki
+        if (ballPosition.x < 0 || ballPosition.x + m_ballSprite.getGlobalBounds().width > mWindow.getSize().x) {
+            m_ballVelocity.x = -m_ballVelocity.x;
+        }
+        if (ballPosition.y < 0) {
             m_ballVelocity.y = -m_ballVelocity.y;
-            object->takeDamage();
+        }
 
+        // sprawdzanie kolizji z paletka
+        if (m_ballSprite.getGlobalBounds().intersects(m_paddleSprite.getGlobalBounds())) {
+            float paddleCenterX = m_paddleSprite.getPosition().x + m_paddleSprite.getGlobalBounds().width / 2.f;
+            float ballCenterX = m_ballSprite.getPosition().x + m_ballSprite.getGlobalBounds().width / 2.f;
+
+            float distanceFromCenter = ballCenterX - paddleCenterX;
+            float maxBounceAngle = 75.f * (3.14159f / 180.f);  // maksymalny kąt odbicia (75 stopni w radianach)
+            float normalizedDistance = distanceFromCenter / (m_paddleSprite.getGlobalBounds().width / 2.f);
+
+            float bounceAngle = normalizedDistance * maxBounceAngle;
+            float speed = sqrt(m_ballVelocity.x * m_ballVelocity.x + m_ballVelocity.y * m_ballVelocity.y);
+            m_ballVelocity.x = speed * sin(bounceAngle);
+            m_ballVelocity.y = -speed * cos(bounceAngle);
+        }
+
+        // resetowanie pilki jak dotknie dolu okna
+        if (ballPosition.y > mWindow.getSize().y) {
+            m_ballSprite.setPosition(864, 600);
+            m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
+            m_isBallAttached = true;  // Przyklejenie piłki po jej zresetowaniu
+        }
+
+        // sprawdzanie kolizji z blokami
+        for (auto& object : m_objects) {
+            if (m_ballSprite.getGlobalBounds().intersects(object->getBounds())) {
+                m_ballVelocity.y = -m_ballVelocity.y;
+                object->takeDamage();
+            }
         }
     }
-
 }
 
 void Game::render() {

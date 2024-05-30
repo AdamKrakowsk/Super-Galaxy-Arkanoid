@@ -48,6 +48,7 @@ private:
 
     bool m_isMovingLeft = false;
     bool m_isMovingRight = false;
+    bool m_isBallAttached = true;
 };
 
 #endif // GAME_H
