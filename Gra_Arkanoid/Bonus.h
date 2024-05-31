@@ -4,25 +4,26 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-class Bonus
-{
+class Bonus {
 public:
     Bonus();
+
     void createBonus();
+    void setPosition(float x, float y);
     void update(sf::Time deltaTime);
     void render(sf::RenderWindow& window);
-    void setPosition(float x, float y);
-    sf::FloatRect getBounds() const;
     bool isCaught() const;
     void catchBonus();
+    sf::FloatRect getBounds() const;
+
+    void setTexture(const sf::Texture& texture);
 
 private:
-    sf::Texture m_bonusTexture;
-    sf::Sprite m_bonusSprite;
-    sf::Vector2f m_velocity;
-    bool m_caught;
+    sf::Sprite m_sprite;
+    bool m_isCaught;
     float m_speed;
+    sf::Vector2f m_velocity;
 };
 
-#endif // BONUS_H
 
+#endif // BONUS_H

@@ -29,13 +29,16 @@ private:
     void createPaddle();
     void createBall();
     void createBlocks();
+    void createBonus(float x, float y, int bonustype);
     void restartGame();
-    void createBonus(float x, float y);
     void saveCoinsToFile(const std::string& filename);
     void loadCoinsFromFile(const std::string& filename);
 
+
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
+    std::vector<std::pair<sf::Sprite, sf::Vector2f>> m_balls;
+    std::vector<Bonus> m_bonuses;
     sf::Texture m_backgroundTexture;
     sf::Sprite m_backgroundSprite;
     sf::Texture m_paddleTexture;
@@ -44,7 +47,11 @@ private:
     sf::Sprite m_ballSprite;
     sf::Texture m_blockTexture;
     sf::Sprite m_blockSprite;
-    std::vector<Bonus> m_bonuses;
+    sf::Texture m_clearTexture;
+    sf::Texture m_bonusTexture;
+    sf::Texture m_bonus1Texture;
+    sf::Texture m_bonus2Texture;
+
 
     Paddle m_paddle;
     Ball m_ball;
@@ -52,6 +59,10 @@ private:
 
     float m_PaddleSpeed;
     float m_BallSpeed;
+    float lastH=50.f;
+    float lastW=200.f;
+
+    int bonuslos=0;
 
     sf::Vector2f m_PaddleVelocity;
     sf::Vector2f m_ballVelocity;

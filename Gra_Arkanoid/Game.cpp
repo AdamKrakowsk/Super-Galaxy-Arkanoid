@@ -14,23 +14,21 @@ Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
     m_ball(m_ballTexture),
-    m_PaddleSpeed(1000.0f),
-    m_BallSpeed(1000.0f),
+    m_PaddleSpeed(900.0f),
+    m_BallSpeed(800.0f),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
     m_highscore(),
     m_gameOver(false),
     coins(0){
-
     loadCoinsFromFile("coins.txt");
 
 }
-
-Game::~Game() {saveCoinsToFile("coins.txt");}
+Game::~Game() { saveCoinsToFile("coins.txt");}
 
 void Game::run() {
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
-     m_gameClock.restart();
+    m_gameClock.restart();
 
 
     // Load textures
@@ -68,7 +66,7 @@ void Game::run() {
     m_coinsText.setFillColor(sf::Color::White);
     m_coinsText.setPosition(mWindow.getSize().x - 250, 10);
 
-    sm.Soundtrack_play();
+    //sm.Soundtrack_play();
 
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -202,7 +200,7 @@ void Game::update(sf::Time deltaTime) {
             float ballCenterX = m_ballSprite.getPosition().x + m_ballSprite.getGlobalBounds().width / 2.f;
 
             float distanceFromCenter = ballCenterX - paddleCenterX;
-            float maxBounceAngle = 75.f * (3.14159f / 180.f);  // maksymalny kąt odbicia (75 stopni w radianach)
+            float maxBounceAngle = 45.f * (3.14159f / 180.f);  // maksymalny kąt odbicia (45 stopni w radianach)
             float normalizedDistance = distanceFromCenter / (m_paddleSprite.getGlobalBounds().width / 2.f);
 
             float bounceAngle = normalizedDistance * maxBounceAngle;
@@ -224,16 +222,103 @@ void Game::update(sf::Time deltaTime) {
             if (m_ballSprite.getGlobalBounds().intersects(object->getBounds())) {
                 m_ballVelocity.y = -m_ballVelocity.y;
                 object->takeDamage();
+                sm.collision_sound();
                 if (object->isDestroyed()) {
-                    createBonus(object->getBounds().left, object->getBounds().top);
+                    bonuslos=rand()%30;
+                    switch (bonuslos) {
+                    case 0: {
+                        if (!m_bonusTexture.loadFromFile("przyspieszeniepilki.png")) {
+                            std::cerr << "Error loading bonus texture" << std::endl;
+                        }
+                        createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
+                        break;
+                    }
+                    case 1: {
+                        if (!m_bonus1Texture.loadFromFile("powiekszeniepaletki.png")) {
+                            std::cerr << "Error loading bonus texture" << std::endl;
+                        }
+                        createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
+                        break;
+                    }
+                    // case 2: {
+                    //     if (!m_bonus2Texture.loadFromFile("rozdwojenie.png")) {
+                    //         std::cerr << "Error loading bonus texture" << std::endl;
+                    //     }
+                    //     createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
+                    //     break;
+                    // }
+                    case 2: {
+                        if (!m_bonus2Texture.loadFromFile("kasa.png")) {
+                            std::cerr << "Error loading bonus texture" << std::endl;
+                        }
+                        createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
+                        break;
+                    }
+                    default:{}
 
-                    // Zwiększanie liczby coinsów za uderzenie w blok
-                    coins += 1;
+                    }
+
                 }
+                // Zwiększanie liczby coinsów za uderzenie w blok
+                coins += 1;
+
+
             }
         }
+    }
+    for (auto& bonus : m_bonuses) {
+        bonus.update(deltaTime);
+        if (bonus.getBounds().intersects(m_paddleSprite.getGlobalBounds()) && !bonus.isCaught()) {
+            bonus.catchBonus();
+            switch(bonuslos){
+                case 0:
+                {
+                m_BallSpeed *= 1.1f;
+                m_ballVelocity.x *= 1.1f;
+                m_ballVelocity.y *= 1.1f;
+                break;
+                }
+                case 1:
+                {
+                    m_paddleSprite.setTexture(m_paddleTexture);
+                    float originalWidth = m_paddleTexture.getSize().x;
+                    float originalHeight = m_paddleTexture.getSize().y;
+                    lastW*=1.05;
+                    float desiredWidth = lastW;
+                    float desiredHeight = lastH;
 
-    // Zaktualizuj teksty z aktualnym czasem i highscore
+                    float scaleX = desiredWidth / originalWidth;
+                    float scaleY = desiredHeight / originalHeight;
+
+                    m_paddleSprite.setScale(scaleX, scaleY);
+                    break;
+                }
+                // case 2:{
+                //     // Rozdwojenie piłki
+                //     sf::Vector2f originalVelocity = m_ballVelocity; // Zapamiętaj pierwotną prędkość piłki
+
+                //     // Stwórz nową piłkę z identycznymi parametrami co oryginalna
+                //     sf::Sprite newBallSprite = m_ballSprite;
+                //     sf::Vector2f newBallVelocity = -originalVelocity; // Odwróć kierunek prędkości
+
+                //     // Ustaw pozycję nowej piłki w pobliżu oryginalnej
+                //     newBallSprite.move(10.f, 10.f); // Przesuń nową piłkę trochę w prawo i trochę w dół
+                //     m_balls.push_back(std::make_pair(newBallSprite, newBallVelocity)); // Dodaj nową piłkę do kontenera piłek
+
+                // }
+                case 2:{
+                    coins+=50;
+                }
+
+            }
+        }
+    }
+
+    m_bonuses.erase(std::remove_if(m_bonuses.begin(), m_bonuses.end(), [](const Bonus& bonus) {
+                        return bonus.isCaught() || bonus.getBounds().top > 972; // usuwanie bonusów, które zlapano albo wylecialy za okno
+                    }), m_bonuses.end());
+
+    // Zaktualizuj teksty z aktualnym czasem i highscore i coinsami
     m_currentTimeText.setString("Time: " + std::to_string(static_cast<int>(m_gameClock.getElapsedTime().asSeconds())));
     m_highscoreText.setString("Highscore: " + std::to_string(m_highscore.getHighscore()));
     m_coinsText.setString("Coins: " + std::to_string(coins));
@@ -248,21 +333,6 @@ void Game::update(sf::Time deltaTime) {
     }
 
 }
-    for (auto& bonus : m_bonuses) {
-        bonus.update(deltaTime);
-        if (bonus.getBounds().intersects(m_paddleSprite.getGlobalBounds()) && !bonus.isCaught()) {
-            bonus.catchBonus();
-            m_BallSpeed *= 1.15f; // Increase ball speed by 15%
-            m_ballVelocity.x *= 1.15f;
-            m_ballVelocity.y *= 1.15f;
-        }
-    }
-
-    m_bonuses.erase(std::remove_if(m_bonuses.begin(), m_bonuses.end(), [](const Bonus& bonus) {
-                        return bonus.isCaught() || bonus.getBounds().top > 972; // Remove caught bonuses or those out of the window
-                    }), m_bonuses.end());
-}
-
 
 void Game::render() {
     mWindow.clear();
@@ -275,12 +345,17 @@ void Game::render() {
     for (auto& bonus : m_bonuses) {
         bonus.render(mWindow);
     }
-
-
+    mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
+    mWindow.draw(m_highscoreText); // Wyświetlanie highscore
+    mWindow.draw(m_coinsText); // Wyświetlanie liczby coinsów
+    m_highscore.draw(mWindow);
 
     if (m_gameOver) {
         sf::Text gameOverText;
         gameOverText.setFont(m_font);
+        m_BallSpeed = 800.0f;
+        m_ballVelocity.x = 800.0f;
+        m_ballVelocity.y = 800.0f;
         gameOverText.setString("Game Over! Press R to Restart");
         gameOverText.setCharacterSize(30);
         gameOverText.setFillColor(sf::Color::White);
@@ -291,18 +366,35 @@ void Game::render() {
         mWindow.draw(gameOverText);
 
     }
-    mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
-    mWindow.draw(m_highscoreText); // Wyświetlanie highscore
-    mWindow.draw(m_coinsText); // Wyświetlanie liczby coinsów
-    m_highscore.draw(mWindow);
+
     mWindow.display();
 }
-void Game::createBonus(float x, float y) {
+
+void Game::createBonus(float x, float y, int bonusType) {
     Bonus bonus;
     bonus.createBonus();
+    switch (bonusType) {
+        case 0:{
+            bonus.setTexture(m_bonusTexture); // Ustawienie tekstury dla bonusu typu 0
+            break;
+        }
+        case 1:{
+            bonus.setTexture(m_bonus1Texture); // Ustawienie tekstury dla bonusu typu 1
+            break;
+        }
+        case 2:{
+            bonus.setTexture(m_bonus2Texture); // Ustawienie tekstury dla bonusu typu 2
+            break;
+        }
+        default:{
+            std::cerr << "Unknown bonus type." << std::endl;
+            return;
+        }
+    }
     bonus.setPosition(x, y);
     m_bonuses.push_back(bonus);
 }
+
 
 void Game::createPaddle() {
     m_paddleSprite.setTexture(m_paddleTexture);
@@ -337,8 +429,8 @@ void Game::createBall() {
 void Game::createBlocks() {
 
     // Tworzenie przykładowych bloków i wierszy i kolumn
-    int rows = 1;
-    int columns = 5; //17
+    int rows = 4;
+    int columns = 6; //17
     float blockWidth = 80.f;
     float blockHeight = 30.f;
     float startX = 30.f;        // miejsca początkowe 30
@@ -353,7 +445,7 @@ void Game::createBlocks() {
         }
     }
 
-        // Pętla pozwalająca na ustawienie kolumn, wierszy, kolorów, hp
+    // Pętla pozwalająca na ustawienie kolumn, wierszy, kolorów, hp
     for (int i = 0; i < columns; ++i) {
         for (int j = 0; j < rows; ++j) {
             sf::Color color;
@@ -395,4 +487,3 @@ void Game::loadCoinsFromFile(const std::string& filename) {
         std::cerr << "Error: Could not open file for reading." << std::endl;
     }
 }
-
