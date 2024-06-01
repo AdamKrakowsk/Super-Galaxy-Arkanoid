@@ -64,7 +64,7 @@ void Game::run() {
     m_coinsText.setFont(m_font);
     m_coinsText.setCharacterSize(50);
     m_coinsText.setFillColor(sf::Color::White);
-    m_coinsText.setPosition(mWindow.getSize().x - 250, 10);
+    m_coinsText.setPosition(mWindow.getSize().x - 350, 10);
 
     //sm.Soundtrack_play();
 
@@ -270,28 +270,29 @@ void Game::update(sf::Time deltaTime) {
         bonus.update(deltaTime);
         if (bonus.getBounds().intersects(m_paddleSprite.getGlobalBounds()) && !bonus.isCaught()) {
             bonus.catchBonus();
-            switch(bonuslos){
-                case 0:
-                {
+            int bonusType = bonus.getType(); // Pobieramy typ bonusu, który został złapany
+            switch(bonusType){
+            case 0:
+            {
                 m_BallSpeed *= 1.1f;
                 m_ballVelocity.x *= 1.1f;
                 m_ballVelocity.y *= 1.1f;
                 break;
-                }
-                case 1:
-                {
-                    m_paddleSprite.setTexture(m_paddleTexture);
-                    float originalWidth = m_paddleTexture.getSize().x;
-                    float originalHeight = m_paddleTexture.getSize().y;
-                    lastW*=1.05;
-                    float desiredWidth = lastW;
-                    float desiredHeight = lastH;
+            }
+            case 1:
+            {
+                m_paddleSprite.setTexture(m_paddleTexture);
+                float originalWidth = m_paddleTexture.getSize().x;
+                float originalHeight = m_paddleTexture.getSize().y;
+                lastW *= 1.15;
+                float desiredWidth = lastW;
+                float desiredHeight = lastH;
 
-                    float scaleX = desiredWidth / originalWidth;
-                    float scaleY = desiredHeight / originalHeight;
+                float scaleX = desiredWidth / originalWidth;
+                float scaleY = desiredHeight / originalHeight;
 
-                    m_paddleSprite.setScale(scaleX, scaleY);
-                    break;
+                m_paddleSprite.setScale(scaleX, scaleY);
+                break;
                 }
                 // case 2:{
                 //     // Rozdwojenie piłki
@@ -308,6 +309,8 @@ void Game::update(sf::Time deltaTime) {
                 // }
                 case 2:{
                     coins+=50;
+                    break;
+
                 }
 
             }
@@ -374,26 +377,30 @@ void Game::createBonus(float x, float y, int bonusType) {
     Bonus bonus;
     bonus.createBonus();
     switch (bonusType) {
-        case 0:{
-            bonus.setTexture(m_bonusTexture); // Ustawienie tekstury dla bonusu typu 0
-            break;
-        }
-        case 1:{
-            bonus.setTexture(m_bonus1Texture); // Ustawienie tekstury dla bonusu typu 1
-            break;
-        }
-        case 2:{
-            bonus.setTexture(m_bonus2Texture); // Ustawienie tekstury dla bonusu typu 2
-            break;
-        }
-        default:{
-            std::cerr << "Unknown bonus type." << std::endl;
-            return;
-        }
+    case 0: {
+        bonus.setTexture(m_bonusTexture);
+        bonus.setType(Bonus::SpeedUp); // Ustaw typ bonusu na Przyspieszenie
+        break;
+    }
+    case 1: {
+        bonus.setTexture(m_bonus1Texture);
+        bonus.setType(Bonus::PaddleEnlarge); // Ustaw typ bonusu na PowiekszeniePaletki
+        break;
+    }
+    case 2: {
+        bonus.setTexture(m_bonus2Texture);
+        bonus.setType(Bonus::ExtraCoins); // Ustaw typ bonusu na DodatkoweMonety
+        break;
+    }
+    default: {
+        std::cerr << "Unknown bonus type." << std::endl;
+        return;
+    }
     }
     bonus.setPosition(x, y);
     m_bonuses.push_back(bonus);
 }
+
 
 
 void Game::createPaddle() {
@@ -429,7 +436,7 @@ void Game::createBall() {
 void Game::createBlocks() {
 
     // Tworzenie przykładowych bloków i wierszy i kolumn
-    int rows = 4;
+    int rows = 6;
     int columns = 6; //17
     float blockWidth = 80.f;
     float blockHeight = 30.f;

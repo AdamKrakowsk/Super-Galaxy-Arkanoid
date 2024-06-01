@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 Bonus::Bonus()
-    : m_isCaught(false), m_velocity(0.f, 200.f) {}
+    : m_isCaught(false), m_velocity(0.f, 200.f), m_type(SpeedUp) {}
 
 void Bonus::createBonus() {
 
@@ -49,4 +49,10 @@ void Bonus::catchBonus() {
 
 sf::FloatRect Bonus::getBounds() const {
     return m_sprite.getGlobalBounds();
+}
+Bonus::Type Bonus::getType() const {
+    return m_type;
+}
+void Bonus::setType(Type type) {
+    m_type = type;
 }

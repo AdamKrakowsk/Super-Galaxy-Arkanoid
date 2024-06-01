@@ -6,6 +6,13 @@
 
 class Bonus {
 public:
+    enum Type {
+        SpeedUp,
+        PaddleEnlarge,
+        ExtraCoins
+    };
+
+
     Bonus();
 
     void createBonus();
@@ -17,12 +24,15 @@ public:
     sf::FloatRect getBounds() const;
 
     void setTexture(const sf::Texture& texture);
+    Type getType() const; // metoda getType(), która zwraca typ bonusu
+    void setType(Type type); // metoda do ustawiania typu bonusu
 
 private:
     sf::Sprite m_sprite;
     bool m_isCaught;
     float m_speed;
     sf::Vector2f m_velocity;
+    Type m_type;
 };
 
 
