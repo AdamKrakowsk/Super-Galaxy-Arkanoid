@@ -19,9 +19,12 @@ Game::Game()
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
     m_highscore(),
     m_gameOver(false),
-    coins(0){
+    coins(0),
+    m_menu(mWindow.getSize().x, mWindow.getSize().y),
+    m_shop(mWindow.getSize().x, mWindow.getSize().y),
+    m_isInMenu(true),
+    m_isInShop(false) {
     loadCoinsFromFile("coins.txt");
-
 }
 Game::~Game() { saveCoinsToFile("coins.txt");}
 
@@ -86,7 +89,9 @@ void Game::run() {
         while (timeSinceLastUpdate > TimePerFrame) {
             timeSinceLastUpdate -= TimePerFrame;
             processEvents();
-            update(TimePerFrame);
+            if (!m_isInMenu && !m_isInShop) {
+                update(TimePerFrame);
+            }
 
             if (m_gameClock.getElapsedTime().asSeconds() > m_highscore.getHighscore()) {
                 // Jeśli czas trwania gry jest krótszy niż highscore, zaktualizuj highscore
@@ -123,33 +128,69 @@ void Game::processEvents() {
 }
 
 void Game::restartGame() {
-    m_gameOver = false;
-    m_isBallAttached = true;
-    m_ballSprite.setPosition(864, 600);
-    m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
-    m_paddleSprite.setPosition(864, 900);
+    m_objects.clear();
+    createPaddle();
+    createBall();
     createBlocks();
     m_gameClock.restart();
+    m_gameOver = false;
 }
-
-
-
 
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
-    if (m_gameOver && key == sf::Keyboard::R && isPressed) {
-        restartGame();
-    }
-    if (key == sf::Keyboard::A || key == sf::Keyboard::Left) {
-        m_isMovingLeft = isPressed;
-    }
-    else if (key == sf::Keyboard::D || key == sf::Keyboard::Right) {
-        m_isMovingRight = isPressed;
-    }
-    else if (key == sf::Keyboard::Space && isPressed && m_isBallAttached) {
-        m_isBallAttached = false;
-        m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);  // Wystrzelenie piłki
+    if (m_isInMenu) {
+        if (key == sf::Keyboard::Up && isPressed) {
+            m_menu.moveUp();
+        } else if (key == sf::Keyboard::Down && isPressed) {
+            m_menu.moveDown();
+        } else if (key == sf::Keyboard::Enter && isPressed) {
+            int selectedItem = m_menu.getPressedItem();
+            if (selectedItem == 0) { // Play
+                m_isInMenu = false;
+                startGame();
+            } else if (selectedItem == 1) { // Highscores
+                // Handle Highscores
+            } else if (selectedItem == 2) { // Settings
+                showSettings();
+            } else if (selectedItem == 3) { // Shop
+                m_isInMenu = false;
+                m_isInShop = true;
+            } else if (selectedItem == 4) { // Exit
+                mWindow.close();
+            }
+        }
+    } else if (m_isInShop) {
+        if (key == sf::Keyboard::Up && isPressed) {
+            m_shop.moveUp();
+        } else if (key == sf::Keyboard::Down && isPressed) {
+            m_shop.moveDown();
+        } else if (key == sf::Keyboard::Enter && isPressed) {
+            m_ball.setTexture(m_shop.getSelectedTexture());
+            m_isInShop = false;
+            m_isInMenu = true;
+        } else if (key == sf::Keyboard::Escape && isPressed) {
+            m_isInShop = false;
+            m_isInMenu = true;
+        }
+    } else {
+        if (m_gameOver && key == sf::Keyboard::R && isPressed) {
+            restartGame();
+        }
+        if (key == sf::Keyboard::A || key == sf::Keyboard::Left) {
+            m_isMovingLeft = isPressed;
+        }
+        else if (key == sf::Keyboard::D || key == sf::Keyboard::Right) {
+            m_isMovingRight = isPressed;
+        }
+        else if (key == sf::Keyboard::Space && isPressed && m_isBallAttached) {
+            m_isBallAttached = false;
+            m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);  // Wystrzelenie piłki
+        }
     }
 }
+
+
+
+
 
 void Game::update(sf::Time deltaTime) {
     if (m_gameOver) return;
@@ -339,6 +380,11 @@ void Game::update(sf::Time deltaTime) {
 
 void Game::render() {
     mWindow.clear();
+    if (m_isInMenu) {
+        m_menu.draw(mWindow);
+    } else if (m_isInShop) {
+        m_shop.draw(mWindow);
+    } else {
     mWindow.draw(m_backgroundSprite);
     mWindow.draw(m_paddleSprite);
     mWindow.draw(m_ballSprite);
@@ -369,7 +415,7 @@ void Game::render() {
         mWindow.draw(gameOverText);
 
     }
-
+    }
     mWindow.display();
 }
 
@@ -493,4 +539,19 @@ void Game::loadCoinsFromFile(const std::string& filename) {
     } else {
         std::cerr << "Error: Could not open file for reading." << std::endl;
     }
+}
+void Game::showMenu() {
+    m_isInMenu = true;
+}
+
+void Game::startGame() {
+    restartGame();
+}
+void Game::showSettings() {
+    // Placeholder function for settings
+    std::cout << "Settings selected - feature not implemented yet" << std::endl;
+}
+
+void Game::showShop() {
+    m_isInShop = true;
 }

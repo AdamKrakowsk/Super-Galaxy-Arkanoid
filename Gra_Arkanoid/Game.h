@@ -12,6 +12,8 @@
 #include "Highscore.h"
 #include "Timer.h"
 #include "Bonus.h"
+#include "Menu.h"
+#include "Shop.h"
 
 class Object;
 
@@ -34,6 +36,10 @@ private:
     void saveCoinsToFile(const std::string& filename);
     void loadCoinsFromFile(const std::string& filename);
 
+    void showMenu();
+    void startGame();
+    void showSettings();
+    void showShop();
 
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
@@ -52,17 +58,16 @@ private:
     sf::Texture m_bonus1Texture;
     sf::Texture m_bonus2Texture;
 
-
     Paddle m_paddle;
     Ball m_ball;
     SoundManager sm;
 
     float m_PaddleSpeed;
     float m_BallSpeed;
-    float lastH=50.f;
-    float lastW=200.f;
+    float lastH = 50.f;
+    float lastW = 200.f;
 
-    int bonuslos=0;
+    int bonuslos = 0;
 
     sf::Vector2f m_PaddleVelocity;
     sf::Vector2f m_ballVelocity;
@@ -81,6 +86,11 @@ private:
 
     int coins;
     sf::Text m_coinsText;
+
+    Menu m_menu;
+    Shop m_shop;
+    bool m_isInMenu;
+    bool m_isInShop;
 };
 
 #endif // GAME_H

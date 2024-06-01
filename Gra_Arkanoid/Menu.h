@@ -1,10 +1,21 @@
 #ifndef MENU_H
 #define MENU_H
 
-class Menu
-{
+#include <SFML/Graphics.hpp>
+#include <vector>
+
+class Menu {
 public:
-    Menu();
+    Menu(float width, float height);
+    void draw(sf::RenderWindow &window);
+    void moveUp();
+    void moveDown();
+    int getPressedItem() const { return selectedItemIndex; }
+
+private:
+    int selectedItemIndex;
+    sf::Font font;
+    std::vector<sf::Text> menuItems;
 };
 
 #endif // MENU_H

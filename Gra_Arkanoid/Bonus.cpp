@@ -1,7 +1,6 @@
 #include "bonus.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <iostream>
 Bonus::Bonus()
     : m_isCaught(false), m_velocity(0.f, 200.f), m_type(SpeedUp) {}
 
