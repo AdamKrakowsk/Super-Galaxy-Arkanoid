@@ -295,6 +295,14 @@ void Game::update(sf::Time deltaTime) {
                         createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
                         break;
                     }
+                    case 3: {
+                        if (!m_bonus3Texture.loadFromFile("przyspieszeniepaletki.png")) {
+                            std::cerr << "Error loading bonus texture" << std::endl;
+                        }
+                        createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
+
+
+                    }
                     default:{}
 
                     }
@@ -352,6 +360,11 @@ void Game::update(sf::Time deltaTime) {
                     coins+=50;
                     break;
 
+                }
+                case 3:{
+                    // Zwiększ prędkość paletki
+                    m_PaddleSpeed *= 1.5f;
+                    break;
                 }
 
             }
@@ -436,6 +449,11 @@ void Game::createBonus(float x, float y, int bonusType) {
     case 2: {
         bonus.setTexture(m_bonus2Texture);
         bonus.setType(Bonus::ExtraCoins); // Ustaw typ bonusu na DodatkoweMonety
+        break;
+    }
+    case 3:{
+        bonus.setTexture(m_bonus3Texture);
+        bonus.setType(Bonus::PaddleSpeedUp); // Ustaw typ bonusu na PrzyspieszeniePaletki
         break;
     }
     default: {

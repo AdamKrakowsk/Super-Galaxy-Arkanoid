@@ -9,7 +9,8 @@ public:
     enum Type {
         SpeedUp,
         PaddleEnlarge,
-        ExtraCoins
+        ExtraCoins,
+        PaddleSpeedUp
     };
 
 

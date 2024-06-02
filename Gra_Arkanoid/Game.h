@@ -57,6 +57,7 @@ private:
     sf::Texture m_bonusTexture;
     sf::Texture m_bonus1Texture;
     sf::Texture m_bonus2Texture;
+    sf::Texture m_bonus3Texture;
 
     Paddle m_paddle;
     Ball m_ball;
