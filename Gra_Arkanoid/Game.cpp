@@ -25,6 +25,8 @@ Game::Game()
     m_isInMenu(true),
     m_isInShop(false) {
     loadCoinsFromFile("coins.txt");
+    sm.setCollisionVolume(5);
+    sm.setSoundtrackVolume(2);
 }
 Game::~Game() { saveCoinsToFile("coins.txt");}
 
@@ -69,7 +71,7 @@ void Game::run() {
     m_coinsText.setFillColor(sf::Color::White);
     m_coinsText.setPosition(mWindow.getSize().x - 350, 10);
 
-    //sm.Soundtrack_play();
+    sm.Soundtrack_play();
 
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -148,7 +150,7 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
                 m_isInMenu = false;
                 startGame();
             } else if (selectedItem == 1) { // Highscores
-                // Handle Highscores
+                m_menu.showHighscore();
             } else if (selectedItem == 2) { // Settings
                 showSettings();
             } else if (selectedItem == 3) { // Shop
@@ -281,13 +283,6 @@ void Game::update(sf::Time deltaTime) {
                         createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
                         break;
                     }
-                    // case 2: {
-                    //     if (!m_bonus2Texture.loadFromFile("rozdwojenie.png")) {
-                    //         std::cerr << "Error loading bonus texture" << std::endl;
-                    //     }
-                    //     createBonus(object->getBounds().left, object->getBounds().top, bonuslos);
-                    //     break;
-                    // }
                     case 2: {
                         if (!m_bonus2Texture.loadFromFile("kasa.png")) {
                             std::cerr << "Error loading bonus texture" << std::endl;
@@ -343,19 +338,7 @@ void Game::update(sf::Time deltaTime) {
                 m_paddleSprite.setScale(scaleX, scaleY);
                 break;
                 }
-                // case 2:{
-                //     // Rozdwojenie piłki
-                //     sf::Vector2f originalVelocity = m_ballVelocity; // Zapamiętaj pierwotną prędkość piłki
 
-                //     // Stwórz nową piłkę z identycznymi parametrami co oryginalna
-                //     sf::Sprite newBallSprite = m_ballSprite;
-                //     sf::Vector2f newBallVelocity = -originalVelocity; // Odwróć kierunek prędkości
-
-                //     // Ustaw pozycję nowej piłki w pobliżu oryginalnej
-                //     newBallSprite.move(10.f, 10.f); // Przesuń nową piłkę trochę w prawo i trochę w dół
-                //     m_balls.push_back(std::make_pair(newBallSprite, newBallVelocity)); // Dodaj nową piłkę do kontenera piłek
-
-                // }
                 case 2:{
                     coins+=50;
                     break;
@@ -363,7 +346,7 @@ void Game::update(sf::Time deltaTime) {
                 }
                 case 3:{
                     // Zwiększ prędkość paletki
-                    m_PaddleSpeed *= 1.5f;
+                    m_PaddleSpeed *= 1.2f;
                     break;
                 }
 
@@ -394,8 +377,10 @@ void Game::update(sf::Time deltaTime) {
 void Game::render() {
     mWindow.clear();
     if (m_isInMenu) {
+        mWindow.draw(m_backgroundSprite);
         m_menu.draw(mWindow);
     } else if (m_isInShop) {
+        mWindow.draw(m_backgroundSprite);
         m_shop.draw(mWindow);
     } else {
     mWindow.draw(m_backgroundSprite);
@@ -565,9 +550,14 @@ void Game::showMenu() {
 void Game::startGame() {
     restartGame();
 }
+// void Game::showHighscore() {
+//     m_menu.showHighscore();
+// }
 void Game::showSettings() {
-    // Placeholder function for settings
-    std::cout << "Settings selected - feature not implemented yet" << std::endl;
+    m_menu.showSettings([this](int soundtrackVolume, int collisionVolume) {
+        sm.setSoundtrackVolume(soundtrackVolume);
+        sm.setCollisionVolume(collisionVolume);
+    });
 }
 
 void Game::showShop() {

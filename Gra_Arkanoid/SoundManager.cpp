@@ -7,16 +7,19 @@ void SoundManager::Soundtrack_play(){
         return;
     }
     soundtrack.setBuffer(soundtrack_buffer);
-    soundtrack.setVolume(2);
     soundtrack.play();
 }
 void SoundManager::collision_sound(){
-if (!koliz_buffer.loadFromFile("kol.wav")) {
-    std::cerr << "Error: Could not load background.png" << std::endl;
-    return;
-}
-
+    if (!koliz_buffer.loadFromFile("kol.wav")) {
+        std::cerr << "Error: Could not load background.png" << std::endl;
+        return;
+    }
 koliz.setBuffer(koliz_buffer);
-koliz.setVolume(10);
 koliz.play();
+}
+void SoundManager::setSoundtrackVolume(int sv){
+    soundtrack.setVolume(sv);
+}
+void SoundManager::setCollisionVolume(int hv){
+    koliz.setVolume(hv);
 }

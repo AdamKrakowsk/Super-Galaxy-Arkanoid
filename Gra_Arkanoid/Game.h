@@ -40,6 +40,7 @@ private:
     void startGame();
     void showSettings();
     void showShop();
+    void showHighscore();
 
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;

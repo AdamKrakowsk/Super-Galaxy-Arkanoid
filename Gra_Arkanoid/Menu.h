@@ -10,12 +10,17 @@ public:
     void draw(sf::RenderWindow &window);
     void moveUp();
     void moveDown();
+    void showSettings(std::function<void(int, int)> setVolumes);
+    void showHighscore();
     int getPressedItem() const { return selectedItemIndex; }
+
+
 
 private:
     int selectedItemIndex;
     sf::Font font;
     std::vector<sf::Text> menuItems;
+    int highscore;
 };
 
 #endif // MENU_H

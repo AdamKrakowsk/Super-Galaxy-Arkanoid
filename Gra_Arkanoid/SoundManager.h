@@ -13,6 +13,8 @@ public:
     sf::Sound soundtrack;
     void Soundtrack_play();
     void collision_sound();
+    void setSoundtrackVolume(int sv);
+    void setCollisionVolume(int hv);
 };
 
 #endif // SOUNDMANAGER_H
