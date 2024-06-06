@@ -8,6 +8,7 @@ class Object : public sf::Sprite
 {
 public:
 
+    // Deklaracja funkcji i zmiennych
     Object(const sf::Texture&);
     Object();
     void setSize(float width, float height);

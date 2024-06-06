@@ -6,7 +6,8 @@
 
 class Highscore {
 public:
-    Highscore(); // Konstruktor
+    // Deklaracja funkcji i zmiennych
+    Highscore();
 
     // Metody do zarządzania highscore
     int getHighscore() const;

@@ -6,6 +6,7 @@
 
 class Shop {
 public:
+    // Deklaracja funkcji i zmiennych
     Shop(float width, float height);
     void draw(sf::RenderWindow &window);
     void moveUp();

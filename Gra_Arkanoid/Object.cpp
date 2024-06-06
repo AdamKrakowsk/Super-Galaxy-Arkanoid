@@ -1,9 +1,10 @@
 #include "Object.h"
+// Funkcje które pozwalają zarządzać daną klasą
 
 Object::Object(const sf::Texture& t) {}
 Object::Object() {}
 
-
+// funkcja obsługująca wielkość
 void Object::setSize(float width, float height) {
     mWidth = width;
     mHeight = height;
@@ -22,10 +23,3 @@ bool Object::checkCollision(const Object& other) const {
     return getGlobalBounds().intersects(other.getGlobalBounds());
 }
 
-// float Object::getWidth()  {
-//     return mWidth;
-// }
-
-// float Object::getHeight()  {
-//     return mHeight;
-// }

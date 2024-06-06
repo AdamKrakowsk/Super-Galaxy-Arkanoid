@@ -7,9 +7,11 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+// Funkcje które pozwalają zarządzać daną klasą
 
 const sf::Time TimePerFrame = sf::seconds(1.f / 240.f);
 
+// Inicjalizacja obiektów
 Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
@@ -28,6 +30,7 @@ Game::Game()
     sm.setCollisionVolume(5);
     sm.setSoundtrackVolume(2);
 }
+//destruktor zapisujący ilość
 Game::~Game() { saveCoinsToFile("coins.txt");}
 
 void Game::run() {
@@ -36,7 +39,7 @@ void Game::run() {
     m_gameClock.restart();
 
 
-    // Load textures
+    //wczytywanie tekstur
     if (!m_backgroundTexture.loadFromFile("background.png")) {
         std::cerr << "Error: Could not load background.png" << std::endl;
         return;
@@ -55,7 +58,7 @@ void Game::run() {
     }
 
 
-
+    // wielkość liter i napisy w grze
     m_currentTimeText.setFont(m_font);
     m_currentTimeText.setCharacterSize(50);
     m_currentTimeText.setFillColor(sf::Color::White);
@@ -73,18 +76,20 @@ void Game::run() {
 
     sm.Soundtrack_play();
 
+    // ustawianie tła
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
         mWindow.getSize().x / static_cast<float>(m_backgroundTexture.getSize().x),
         mWindow.getSize().y / static_cast<float>(m_backgroundTexture.getSize().y)
         );
 
+    // tworzenie obiektów
     createPaddle();
     createBall();
     createBlocks();
 
 
-
+    // Kiedy okno jest otwarte i procesy w nim zawarte
     while (mWindow.isOpen()) {
         processEvents();
         timeSinceLastUpdate += clock.restart();
@@ -129,6 +134,7 @@ void Game::processEvents() {
     }
 }
 
+// restartowanie gry
 void Game::restartGame() {
     m_objects.clear();
     createPaddle();
@@ -138,6 +144,7 @@ void Game::restartGame() {
     m_gameOver = false;
 }
 
+// korzystanie z przycisków przez użytkowanika
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
     if (m_isInMenu) {
         if (key == sf::Keyboard::Up && isPressed) {
@@ -193,7 +200,7 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
 
 
 
-
+// obsługiwanie w czasie gry
 void Game::update(sf::Time deltaTime) {
     if (m_gameOver) return;
 
@@ -310,6 +317,8 @@ void Game::update(sf::Time deltaTime) {
             }
         }
     }
+
+    // pętla z obsługą bonusów
     for (auto& bonus : m_bonuses) {
         bonus.update(deltaTime);
         if (bonus.getBounds().intersects(m_paddleSprite.getGlobalBounds()) && !bonus.isCaught()) {
@@ -374,6 +383,7 @@ void Game::update(sf::Time deltaTime) {
 
 }
 
+// rendereowanie obiektów
 void Game::render() {
     mWindow.clear();
     if (m_isInMenu) {
@@ -417,28 +427,30 @@ void Game::render() {
     mWindow.display();
 }
 
+
+// tworzenie bonusów
 void Game::createBonus(float x, float y, int bonusType) {
     Bonus bonus;
     bonus.createBonus();
     switch (bonusType) {
     case 0: {
         bonus.setTexture(m_bonusTexture);
-        bonus.setType(Bonus::SpeedUp); // Ustaw typ bonusu na Przyspieszenie
+        bonus.setType(Bonus::SpeedUp); // Ustawienie typu bonusu na Przyspieszenie
         break;
     }
     case 1: {
         bonus.setTexture(m_bonus1Texture);
-        bonus.setType(Bonus::PaddleEnlarge); // Ustaw typ bonusu na PowiekszeniePaletki
+        bonus.setType(Bonus::PaddleEnlarge); // Ustawienie typu bonusu na PowiekszeniePaletki
         break;
     }
     case 2: {
         bonus.setTexture(m_bonus2Texture);
-        bonus.setType(Bonus::ExtraCoins); // Ustaw typ bonusu na DodatkoweMonety
+        bonus.setType(Bonus::ExtraCoins); // Ustawienie typu bonusu na DodatkoweMonety
         break;
     }
     case 3:{
         bonus.setTexture(m_bonus3Texture);
-        bonus.setType(Bonus::PaddleSpeedUp); // Ustaw typ bonusu na PrzyspieszeniePaletki
+        bonus.setType(Bonus::PaddleSpeedUp); // Ustawienie typu bonusu na PrzyspieszeniePaletki
         break;
     }
     default: {
@@ -452,6 +464,7 @@ void Game::createBonus(float x, float y, int bonusType) {
 
 
 
+// tworzenie paletki
 void Game::createPaddle() {
     m_paddleSprite.setTexture(m_paddleTexture);
     m_paddleSprite.setPosition(864, 900);
@@ -467,6 +480,7 @@ void Game::createPaddle() {
     m_paddleSprite.setScale(scaleX, scaleY);
 }
 
+// tworzenie piłki
 void Game::createBall() {
     m_ballSprite.setTexture(m_ballTexture);
     m_ballSprite.setPosition(864, 600);
@@ -482,11 +496,13 @@ void Game::createBall() {
     m_ballSprite.setScale(scaleX, scaleY);
 }
 
+
+// tworzenie bloków
 void Game::createBlocks() {
 
     // Tworzenie przykładowych bloków i wierszy i kolumn
     int rows = 6;
-    int columns = 6; //17
+    int columns = 17; //17
     float blockWidth = 80.f;
     float blockHeight = 30.f;
     float startX = 30.f;        // miejsca początkowe 30
@@ -524,6 +540,8 @@ void Game::createBlocks() {
     }
 }
 
+
+// funkcja zapisująca coinsy do pliku
 void Game::saveCoinsToFile(const std::string& filename) {
     std::ofstream file(filename);
     if (file.is_open()) {
@@ -534,6 +552,7 @@ void Game::saveCoinsToFile(const std::string& filename) {
     }
 }
 
+// funkcja wczytująca coinsy z pliku
 void Game::loadCoinsFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (file.is_open()) {

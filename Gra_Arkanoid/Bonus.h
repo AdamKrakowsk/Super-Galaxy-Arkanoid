@@ -6,6 +6,7 @@
 
 class Bonus {
 public:
+    // Deklaracja funkcji, listy wartości i zmiennych
     enum Type {
         SpeedUp,
         PaddleEnlarge,

@@ -1,4 +1,5 @@
 #include "Ball.h"
+// Funkcje które pozwalają zarządzać daną klasą
 
 Ball::Ball(sf::Texture& texture) : m_sprite(texture), m_speed(300.0f) {
     m_sprite.setScale(0.1f, 0.1f); // Skalowanie piłki, jeśli jest zbyt duża
@@ -9,6 +10,7 @@ void Ball::draw(sf::RenderWindow& window) const {
     window.draw(m_sprite);
 }
 
+// Funkcja do prędkości
 void Ball::update(float dt) {
     m_sprite.move(mVelocity * dt);
 
@@ -22,7 +24,7 @@ void Ball::update(float dt) {
         mVelocity.y = -mVelocity.y;
     }
 }
-
+// Funkcja do sprawdzania kolizji
 void Ball::handleCollision(Object& object) {
     if (m_sprite.getGlobalBounds().intersects(object.getBounds())) {
         mVelocity.y = -mVelocity.y;

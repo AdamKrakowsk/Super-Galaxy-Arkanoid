@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+// Funkcje które pozwalają zarządzać daną klasą
 
 
 Menu::Menu(float width, float height) {
@@ -9,7 +10,7 @@ Menu::Menu(float width, float height) {
         std::cerr << "Error: Could not load font arial.ttf" << std::endl;
     }
 
-    // Initialize menu items
+    // Inicjalizacja przedmiotów w menu
     sf::Text playText, highscoreText, settingsText, shopText, exitText;
 
     playText.setFont(font);
@@ -53,6 +54,7 @@ void Menu::draw(sf::RenderWindow &window) {
     }
 }
 
+// funkcja do poruszania w menu
 void Menu::moveUp() {
     if (selectedItemIndex - 1 >= 0) {
         menuItems[selectedItemIndex].setFillColor(sf::Color::White);
@@ -61,6 +63,8 @@ void Menu::moveUp() {
     }
 }
 
+
+// funkcja do poruszania w menu
 void Menu::moveDown() {
     if (selectedItemIndex + 1 < menuItems.size()) {
         menuItems[selectedItemIndex].setFillColor(sf::Color::White);
@@ -68,6 +72,11 @@ void Menu::moveDown() {
         menuItems[selectedItemIndex].setFillColor(sf::Color::Red);
     }
 }
+
+
+
+
+// funkcja do korzystania z opcji w menu
 void Menu::showSettings(std::function<void(int, int)> setVolumes) {
     sf::RenderWindow settingsWindow(sf::VideoMode(700, 500), "Settings");
 
@@ -141,6 +150,11 @@ void Menu::showSettings(std::function<void(int, int)> setVolumes) {
         settingsWindow.display();
     }
 }
+
+
+
+
+// Funkcja pokazująca w menu HighScore
 void Menu::showHighscore() {
 
         std::ifstream file("highscore.txt");

@@ -6,6 +6,7 @@
 class SoundManager
 {
 public:
+    // Deklaracja funkcji i zmiennych
     SoundManager();
     sf::SoundBuffer koliz_buffer;
     sf::Sound koliz;

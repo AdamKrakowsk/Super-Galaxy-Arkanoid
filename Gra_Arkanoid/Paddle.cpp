@@ -1,11 +1,9 @@
 #include "Paddle.h"
+// Funkcje które pozwalają zarządzać daną klasą
 
-Paddle::Paddle(const sf::Texture& texture): Object(texture)
-{
-    // Ustawienie domyślnego rozmiaru paletki
-    //setSize(150.f, 30.f);
-}
+Paddle::Paddle(const sf::Texture& texture): Object(texture){}
 
+//funkcja obsługująca wielkość paletki
 void Paddle::setSize(float width, float height) {
      Object::setSize(width, height);
 }

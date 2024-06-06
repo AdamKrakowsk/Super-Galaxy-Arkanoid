@@ -1,6 +1,10 @@
 #include "SoundManager.h"
 #include <iostream>
+// Funkcje które pozwalają zarządzać daną klasą
+
 SoundManager::SoundManager() {}
+
+// wczytywanie soundtracku
 void SoundManager::Soundtrack_play(){
     if (!soundtrack_buffer.loadFromFile("soundtrack.wav")) {
         std::cerr << "Error: Could not load background.png" << std::endl;
@@ -17,6 +21,8 @@ void SoundManager::collision_sound(){
 koliz.setBuffer(koliz_buffer);
 koliz.play();
 }
+
+// ustawienie głośności dźwięku
 void SoundManager::setSoundtrackVolume(int sv){
     soundtrack.setVolume(sv);
 }

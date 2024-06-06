@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <SFML/Graphics.hpp>
+// Funkcje które pozwalają zarządzać daną klasą
 
 Highscore::Highscore() : m_highscore() {
     loadHighscore();
@@ -16,13 +17,14 @@ void Highscore::draw(sf::RenderWindow& window) const {
 }
 
 
-
+// funkcja sprawdzająca Highscore
 void Highscore::setHighscore(int highscore) {
     if (highscore < m_highscore) {
         m_highscore = highscore;
     }
 }
 
+// Zapis do pliku wyniku
 void Highscore::saveHighscore() {
     std::ofstream file("highscore.txt");
     if (file.is_open()) {
@@ -33,6 +35,7 @@ void Highscore::saveHighscore() {
     }
 }
 
+// wczytywanie z pliku wyniku
 void Highscore::loadHighscore() {
     std::ifstream file("highscore.txt");
     if (file.is_open()) {

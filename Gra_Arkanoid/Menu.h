@@ -6,6 +6,7 @@
 
 class Menu {
 public:
+    // Deklaracja funkcji i zmiennych
     Menu(float width, float height);
     void draw(sf::RenderWindow &window);
     void moveUp();

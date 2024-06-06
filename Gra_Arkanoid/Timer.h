@@ -5,6 +5,7 @@
 
 class Timer {
 public:
+    // Deklaracja funkcji i zmiennych
     Timer();
     void restart();
     void update();

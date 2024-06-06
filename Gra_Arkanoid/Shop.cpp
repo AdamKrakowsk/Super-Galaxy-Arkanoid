@@ -1,22 +1,23 @@
 #include "Shop.h"
+// Funkcje które pozwalają zarządzać daną klasą
 
 Shop::Shop(float width, float height) {
     if (!font.loadFromFile("arial.ttf")) {
-        // Handle error
+        // Obsługa błedu
     }
 
-    // Load ball textures
+    // Ładowanie tekstur piłki
     sf::Texture texture;
     std::vector<std::string> textureFiles = {"ball1.png", "ball2.png", "ball3.png", "ball4.png", "ball5.png"};
     for (const auto& file : textureFiles) {
         if (texture.loadFromFile(file)) {
             ballTextures.push_back(texture);
         } else {
-            // Handle error
+            // Obsługa błedu
         }
     }
 
-    // Initialize shop items
+    // Inicjalizacja przedmiotów w sklepie
     for (int i = 0; i < ballTextures.size(); ++i) {
         sf::Text itemText;
         itemText.setFont(font);
@@ -36,6 +37,7 @@ void Shop::draw(sf::RenderWindow &window) {
     }
 }
 
+// obsługa poruszania się po sklepie
 void Shop::moveUp() {
     if (selectedItemIndex - 1 >= 0) {
         shopItems[selectedItemIndex].setFillColor(sf::Color::White);
@@ -44,6 +46,7 @@ void Shop::moveUp() {
     }
 }
 
+// obsługa poruszania się po sklepie
 void Shop::moveDown() {
     if (selectedItemIndex + 1 < shopItems.size()) {
         shopItems[selectedItemIndex].setFillColor(sf::Color::White);

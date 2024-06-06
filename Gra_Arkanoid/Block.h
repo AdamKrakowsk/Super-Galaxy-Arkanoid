@@ -7,6 +7,7 @@
 class Block : public Object
 {
 public:
+    // Deklaracja funkcji i zmiennych
     Block(float width, float height, sf::Color color, int hp);
     void draw(sf::RenderWindow& window) const override;
     void update(float dt) override;

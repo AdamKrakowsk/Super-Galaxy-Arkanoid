@@ -7,6 +7,7 @@
 class Paddle : public Object
 {
 public:
+    // Deklaracja funkcji i zmiennych
     Paddle(const sf::Texture& texture);
     void setSize(float width, float height);
     void draw(sf::RenderWindow& window) const override;

@@ -7,6 +7,7 @@
 class Ball : public Object
 {
 public:
+    // Deklaracja funkcji i zmiennych
     Ball(sf::Texture& texture);
 
     void draw(sf::RenderWindow& window) const override;

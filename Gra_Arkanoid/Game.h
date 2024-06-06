@@ -19,6 +19,7 @@ class Object;
 
 class Game {
 public:
+    // Deklaracja funkcji, tekstur i zmiennych
     Game();
     ~Game();
     void run();
