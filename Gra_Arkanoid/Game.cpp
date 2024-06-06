@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Block.h"
 #include "Bonus.h"
+#include "HeartSystem.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -16,8 +17,10 @@ Game::Game()
     : mWindow(sf::VideoMode(1728, 972), "Super Galaxy Arkanoid"),
     m_paddle(m_paddleTexture),
     m_ball(m_ballTexture),
+    m_heartSystem(3, m_heartTexture, 100.f, 100.f),
     m_PaddleSpeed(900.0f),
     m_BallSpeed(800.0f),
+    m_lives(3),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
     m_highscore(),
     m_gameOver(false),
@@ -29,6 +32,14 @@ Game::Game()
     loadCoinsFromFile("coins.txt");
     sm.setCollisionVolume(5);
     sm.setSoundtrackVolume(2);
+    if (!m_heartTexture.loadFromFile("life.png")) {
+        std::cerr << "Error: Could not load life.png" << std::endl;
+        return;
+    }
+    if (m_heartTexture.getSize().x == 0 || m_heartTexture.getSize().y == 0) {
+        std::cerr << "Error: Failed to load heart.png texture" << std::endl;
+        // Możesz tutaj zakończyć program lub podjąć odpowiednie działania
+    }
 }
 //destruktor zapisujący ilość
 Game::~Game() { saveCoinsToFile("coins.txt");}
@@ -62,7 +73,7 @@ void Game::run() {
     m_currentTimeText.setFont(m_font);
     m_currentTimeText.setCharacterSize(50);
     m_currentTimeText.setFillColor(sf::Color::White);
-    m_currentTimeText.setPosition(mWindow.getSize().x / 2.f - 100.f, 10.f);
+    m_currentTimeText.setPosition(mWindow.getSize().x / 2.f - 300.f, 10.f);
 
     m_highscoreText.setFont(m_font);
     m_highscoreText.setCharacterSize(50);
@@ -72,10 +83,9 @@ void Game::run() {
     m_coinsText.setFont(m_font);
     m_coinsText.setCharacterSize(50);
     m_coinsText.setFillColor(sf::Color::White);
-    m_coinsText.setPosition(mWindow.getSize().x - 350, 10);
+    m_coinsText.setPosition(mWindow.getSize().x - 650, 10);
 
     sm.Soundtrack_play();
-
     // ustawianie tła
     m_backgroundSprite.setTexture(m_backgroundTexture);
     m_backgroundSprite.setScale(
@@ -142,11 +152,20 @@ void Game::restartGame() {
     createBlocks();
     m_gameClock.restart();
     m_gameOver = false;
+    m_showGameOverScreen = true;
+    m_isMovingLeft = false;  // Zresetuj zmienne odpowiadające za ruch paletki
+    m_isMovingRight = false;
+    m_lives=3;
+    m_isBallAttached = true;
 }
 
 // korzystanie z przycisków przez użytkowanika
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
-    if (m_isInMenu) {
+    if(m_showGameOverScreen && isPressed && key== sf::Keyboard::Space){
+        m_isInMenu = true;
+        m_showGameOverScreen = false;
+    }
+    else if (m_isInMenu) {
         if (key == sf::Keyboard::Up && isPressed) {
             m_menu.moveUp();
         } else if (key == sf::Keyboard::Down && isPressed) {
@@ -260,11 +279,18 @@ void Game::update(sf::Time deltaTime) {
             sm.collision_sound();
         }
 
-        // resetowanie pilki jak dotknie dolu okna
+        // resetowanie pilki jak dotknie dolu okna i obsluga żyć
         if (ballPosition.y > mWindow.getSize().y) {
-            m_ballSprite.setPosition(864, 600);
-            m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
-            m_isBallAttached = true;  // Przyklejenie piłki po jej zresetowaniu
+            m_heartSystem.loseHeart();
+            m_lives--;
+            if (m_lives > 0) {
+                m_ballSprite.setPosition(864, 600);
+                m_ballVelocity = sf::Vector2f(-m_BallSpeed, -m_BallSpeed);
+                m_isBallAttached = true;
+            } else {
+                m_gameOver = true;
+                restartGame();
+            }
         }
 
         // sprawdzanie kolizji z blokami
@@ -317,8 +343,7 @@ void Game::update(sf::Time deltaTime) {
             }
         }
     }
-
-    // pętla z obsługą bonusów
+     // pętla z obsługą bonusów
     for (auto& bonus : m_bonuses) {
         bonus.update(deltaTime);
         if (bonus.getBounds().intersects(m_paddleSprite.getGlobalBounds()) && !bonus.isCaught()) {
@@ -346,18 +371,18 @@ void Game::update(sf::Time deltaTime) {
 
                 m_paddleSprite.setScale(scaleX, scaleY);
                 break;
-                }
+            }
 
-                case 2:{
-                    coins+=50;
-                    break;
+            case 2:{
+                coins+=50;
+                break;
 
-                }
-                case 3:{
-                    // Zwiększ prędkość paletki
-                    m_PaddleSpeed *= 1.2f;
-                    break;
-                }
+            }
+            case 3:{
+                // Zwiększ prędkość paletki
+                m_PaddleSpeed *= 1.2f;
+                break;
+            }
 
             }
         }
@@ -386,47 +411,69 @@ void Game::update(sf::Time deltaTime) {
 // rendereowanie obiektów
 void Game::render() {
     mWindow.clear();
-    if (m_isInMenu) {
+    if (m_showGameOverScreen) {
         mWindow.draw(m_backgroundSprite);
-        m_menu.draw(mWindow);
-    } else if (m_isInShop) {
-        mWindow.draw(m_backgroundSprite);
-        m_shop.draw(mWindow);
-    } else {
-    mWindow.draw(m_backgroundSprite);
-    mWindow.draw(m_paddleSprite);
-    mWindow.draw(m_ballSprite);
-    for (const auto& obj : m_objects) {
-        mWindow.draw(*obj);
-    }
-    for (auto& bonus : m_bonuses) {
-        bonus.render(mWindow);
-    }
-    mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
-    mWindow.draw(m_highscoreText); // Wyświetlanie highscore
-    mWindow.draw(m_coinsText); // Wyświetlanie liczby coinsów
-    m_highscore.draw(mWindow);
-
-    if (m_gameOver) {
         sf::Text gameOverText;
         gameOverText.setFont(m_font);
-        m_BallSpeed = 800.0f;
-        m_ballVelocity.x = 800.0f;
-        m_ballVelocity.y = 800.0f;
-        gameOverText.setString("Game Over! Press R to Restart");
+        gameOverText.setString("GAME OVER! PRESS SPACED TO GO TO MENU");
         gameOverText.setCharacterSize(30);
         gameOverText.setFillColor(sf::Color::White);
+        mWindow.clear();
         gameOverText.setPosition(
             mWindow.getSize().x / 2.f - gameOverText.getLocalBounds().width / 2.f,
             mWindow.getSize().y / 2.f - gameOverText.getLocalBounds().height / 2.f
             );
         mWindow.draw(gameOverText);
 
-    }
+
+    } else if (m_isInMenu) {
+        mWindow.draw(m_backgroundSprite);
+        m_menu.draw(mWindow);
+    } else if (m_isInShop) {
+        mWindow.draw(m_backgroundSprite);
+        m_shop.draw(mWindow);
+    } else {
+        mWindow.draw(m_backgroundSprite);
+        mWindow.draw(m_paddleSprite);
+        mWindow.draw(m_ballSprite);
+        for (int i = 0; i < m_lives; ++i) {
+            sf::Sprite heart;
+            heart.setTexture(m_heartTexture);
+            heart.setPosition(1630 - i * 80, 10);
+            heart.setScale(0.2, 0.2);
+            mWindow.draw(heart);
+        }
+        for (const auto& obj : m_objects) {
+            mWindow.draw(*obj);
+        }
+        for (auto& bonus : m_bonuses) {
+            bonus.render(mWindow);
+        }
+        mWindow.draw(m_currentTimeText); // Wyświetlanie aktualnego czasu
+        mWindow.draw(m_highscoreText); // Wyświetlanie highscore
+        mWindow.draw(m_coinsText); // Wyświetlanie liczby coinsów
+        m_highscore.draw(mWindow);
+
+        if (m_gameOver) {
+            sf::Text gameOverText;
+            gameOverText.setFont(m_font);
+            m_BallSpeed = 800.0f;
+            m_ballVelocity.x = 800.0f;
+            m_ballVelocity.y = 800.0f;
+            gameOverText.setString("YOU WIN! PRESS R TO GO TO MENU");
+            gameOverText.setCharacterSize(30);
+            gameOverText.setFillColor(sf::Color::White);
+            gameOverText.setPosition(
+                mWindow.getSize().x / 2.f - gameOverText.getLocalBounds().width / 2.f,
+                mWindow.getSize().y / 2.f - gameOverText.getLocalBounds().height / 2.f
+                );
+            mWindow.clear();
+            mWindow.draw(gameOverText);
+
+        }
     }
     mWindow.display();
 }
-
 
 // tworzenie bonusów
 void Game::createBonus(float x, float y, int bonusType) {
@@ -450,7 +497,7 @@ void Game::createBonus(float x, float y, int bonusType) {
     }
     case 3:{
         bonus.setTexture(m_bonus3Texture);
-        bonus.setType(Bonus::PaddleSpeedUp); // Ustawienie typu bonusu na PrzyspieszeniePaletki
+        bonus.setType(Bonus::PaddleSpeedUp); // Ustawianie typu bonusu na PrzyspieszeniePaletki
         break;
     }
     default: {
@@ -461,7 +508,6 @@ void Game::createBonus(float x, float y, int bonusType) {
     bonus.setPosition(x, y);
     m_bonuses.push_back(bonus);
 }
-
 
 
 // tworzenie paletki
@@ -495,8 +541,6 @@ void Game::createBall() {
 
     m_ballSprite.setScale(scaleX, scaleY);
 }
-
-
 // tworzenie bloków
 void Game::createBlocks() {
 
@@ -540,7 +584,6 @@ void Game::createBlocks() {
     }
 }
 
-
 // funkcja zapisująca coinsy do pliku
 void Game::saveCoinsToFile(const std::string& filename) {
     std::ofstream file(filename);
@@ -567,11 +610,17 @@ void Game::showMenu() {
 }
 
 void Game::startGame() {
-    restartGame();
+    m_objects.clear();
+    createPaddle();
+    createBall();
+    createBlocks();
+    m_gameClock.restart();
+    m_isMovingLeft = false;  // Zresetuj zmienne odpowiadające za ruch paletki
+    m_isMovingRight = false;
+    m_lives=3;
+    m_isBallAttached = true;
 }
-// void Game::showHighscore() {
-//     m_menu.showHighscore();
-// }
+
 void Game::showSettings() {
     m_menu.showSettings([this](int soundtrackVolume, int collisionVolume) {
         sm.setSoundtrackVolume(soundtrackVolume);

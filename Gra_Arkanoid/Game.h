@@ -14,6 +14,7 @@
 #include "Bonus.h"
 #include "Menu.h"
 #include "Shop.h"
+#include "HeartSystem.h"
 
 class Object;
 
@@ -60,10 +61,12 @@ private:
     sf::Texture m_bonus1Texture;
     sf::Texture m_bonus2Texture;
     sf::Texture m_bonus3Texture;
+    sf::Texture m_heartTexture;
 
     Paddle m_paddle;
     Ball m_ball;
     SoundManager sm;
+    HeartSystem m_heartSystem;
 
     float m_PaddleSpeed;
     float m_BallSpeed;
@@ -71,6 +74,7 @@ private:
     float lastW = 200.f;
 
     int bonuslos = 0;
+    int m_lives;
 
     sf::Vector2f m_PaddleVelocity;
     sf::Vector2f m_ballVelocity;
@@ -78,6 +82,7 @@ private:
     bool m_isMovingLeft = false;
     bool m_isMovingRight = false;
     bool m_isBallAttached = true;
+    bool m_showGameOverScreen=false;
 
     Highscore m_highscore;
     Timer m_timer;

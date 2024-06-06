@@ -13,6 +13,10 @@ public:
     void moveDown();
     int getSelectedItemIndex() const { return selectedItemIndex; }
     sf::Texture& getSelectedTexture();
+    std::vector<int> ballPrices = {10, 20, 30, 40, 50};
+    int readCoins();
+    void updateCoins(int newBalance);
+    bool purchaseBall();
 
 private:
     int selectedItemIndex;

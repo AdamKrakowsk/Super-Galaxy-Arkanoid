@@ -1,6 +1,6 @@
 #include "Shop.h"
+#include <fstream>
 // Funkcje które pozwalają zarządzać daną klasą
-
 Shop::Shop(float width, float height) {
     if (!font.loadFromFile("arial.ttf")) {
         // Obsługa błedu
@@ -22,7 +22,7 @@ Shop::Shop(float width, float height) {
         sf::Text itemText;
         itemText.setFont(font);
         itemText.setFillColor(sf::Color::White);
-        itemText.setString("Ball " + std::to_string(i + 1));
+        itemText.setString("Ball " + std::to_string(i + 1) + " - " + std::to_string(ballPrices[i]) + " coins");
         itemText.setPosition(sf::Vector2f(width / 2.f, height / (ballTextures.size() + 1) * (i + 1)));
         shopItems.push_back(itemText);
     }
@@ -57,4 +57,38 @@ void Shop::moveDown() {
 
 sf::Texture& Shop::getSelectedTexture() {
     return ballTextures[selectedItemIndex];
+}
+int Shop::readCoins() {
+    std::ifstream file("coins.txt");
+    if (file.is_open()) {
+        int coins;
+        file >> coins;
+        file.close();
+        return coins;
+    } else {
+        // Handle file opening error
+        return 0;
+    }
+}
+void Shop::updateCoins(int newBalance) {
+    std::ofstream file("coins.txt");
+    if (file.is_open()) {
+        file << newBalance;
+        file.close();
+    } else {
+        // Handle file opening error
+    }
+}
+bool Shop::purchaseBall() {
+    int coins = readCoins();
+    int ballPrice = ballPrices[selectedItemIndex];
+    if (coins >= ballPrice) {
+        int newBalance = coins - ballPrice;
+        updateCoins(newBalance);
+        // Add the purchased ball's texture to the game or perform any other necessary actions
+        return true;
+    } else {
+        // Insufficient coins
+        return false;
+    }
 }
