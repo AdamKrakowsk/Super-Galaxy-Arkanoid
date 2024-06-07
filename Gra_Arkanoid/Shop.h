@@ -23,6 +23,8 @@ private:
     sf::Font font;
     std::vector<sf::Text> shopItems;
     std::vector<sf::Texture> ballTextures;
+    sf::Sprite ballsprite[6];
+    sf::Text coinsText;
 };
 
 #endif // SHOP_H

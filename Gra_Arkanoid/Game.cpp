@@ -59,7 +59,7 @@ void Game::run() {
         std::cerr << "Error: Could not load paletka.png" << std::endl;
         return;
     }
-    if (!m_ballTexture.loadFromFile("pilka.png")) {
+    if (!m_ballTexture.loadFromFile("ball1.png")) {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
@@ -192,7 +192,17 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
         } else if (key == sf::Keyboard::Down && isPressed) {
             m_shop.moveDown();
         } else if (key == sf::Keyboard::Enter && isPressed) {
-            m_ball.setTexture(m_shop.getSelectedTexture());
+            saveCoinsToFile("coins.txt");
+            m_shop.getSelectedItemIndex();
+            m_shop.readCoins();
+            m_shop.purchaseBall();
+            if(m_shop.getSelectedTexture().getSize().x !=0 ||m_shop.getSelectedTexture().getSize().y!=0){
+            m_ballSprite.setTexture(m_shop.getSelectedTexture());
+            }
+            else{
+                m_ballSprite.setTexture(m_ballTexture);
+            }
+            loadCoinsFromFile("coins.txt");
             m_isInShop = false;
             m_isInMenu = true;
         } else if (key == sf::Keyboard::Escape && isPressed) {
@@ -528,7 +538,12 @@ void Game::createPaddle() {
 
 // tworzenie piłki
 void Game::createBall() {
-    m_ballSprite.setTexture(m_ballTexture);
+    if(m_shop.getSelectedTexture().getSize().x !=0 ||m_shop.getSelectedTexture().getSize().y!=0){
+        m_ballSprite.setTexture(m_shop.getSelectedTexture());
+    }
+    else{
+        m_ballSprite.setTexture(m_ballTexture);
+    }
     m_ballSprite.setPosition(864, 600);
     float originalWidth = m_ballTexture.getSize().x;
     float originalHeight = m_ballTexture.getSize().y;
