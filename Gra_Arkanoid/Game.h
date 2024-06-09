@@ -47,6 +47,7 @@ private:
     sf::RenderWindow mWindow;
     std::vector<std::unique_ptr<Object>> m_objects;
     std::vector<std::pair<sf::Sprite, sf::Vector2f>> m_balls;
+    std::vector<std::string> m_animatedBallTextureFilenames;
     std::vector<Bonus> m_bonuses;
     sf::Texture m_backgroundTexture;
     sf::Sprite m_backgroundSprite;
@@ -62,6 +63,8 @@ private:
     sf::Texture m_bonus2Texture;
     sf::Texture m_bonus3Texture;
     sf::Texture m_heartTexture;
+    sf::Texture m_animatedBallTexture;
+
 
     Paddle m_paddle;
     Ball m_ball;

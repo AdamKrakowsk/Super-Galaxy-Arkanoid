@@ -16,7 +16,10 @@ public:
     std::vector<int> ballPrices = {10, 20, 30, 40, 50};
     int readCoins();
     void updateCoins(int newBalance);
+    void animation(sf::RenderWindow &window);
     bool purchaseBall();
+    sf::Texture arrayOfTexture[9];
+    sf::Sprite animatedBall;
 
 private:
     int selectedItemIndex;
@@ -25,6 +28,12 @@ private:
     std::vector<sf::Texture> ballTextures;
     sf::Sprite ballsprite[6];
     sf::Text coinsText;
+    std::vector<sf::Texture> animatedTextures;
+    sf::Sprite animatedSprite;
+    sf::Clock animationClock;
+    int animationFrame;
+
+    void updateAnimation();
 };
 
 #endif // SHOP_H

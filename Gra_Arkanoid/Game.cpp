@@ -59,7 +59,7 @@ void Game::run() {
         std::cerr << "Error: Could not load paletka.png" << std::endl;
         return;
     }
-    if (!m_ballTexture.loadFromFile("ball1.png")) {
+    if (!m_ballTexture.loadFromFile("pilka.png")) {
         std::cerr << "Error: Could not load pilka.png" << std::endl;
         return;
     }
@@ -166,9 +166,9 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
         m_showGameOverScreen = false;
     }
     else if (m_isInMenu) {
-        if (key == sf::Keyboard::Up && isPressed) {
+        if ((key == sf::Keyboard::Up||key == sf::Keyboard::W)&& isPressed) {
             m_menu.moveUp();
-        } else if (key == sf::Keyboard::Down && isPressed) {
+        } else if ((key == sf::Keyboard::Down||key == sf::Keyboard::S) && isPressed) {
             m_menu.moveDown();
         } else if (key == sf::Keyboard::Enter && isPressed) {
             int selectedItem = m_menu.getPressedItem();
@@ -187,21 +187,43 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
             }
         }
     } else if (m_isInShop) {
-        if (key == sf::Keyboard::Up && isPressed) {
+        if ((key == sf::Keyboard::Up||key == sf::Keyboard::W) && isPressed) {
             m_shop.moveUp();
-        } else if (key == sf::Keyboard::Down && isPressed) {
+        } else if ((key == sf::Keyboard::Down||key == sf::Keyboard::S) && isPressed) {
             m_shop.moveDown();
         } else if (key == sf::Keyboard::Enter && isPressed) {
             saveCoinsToFile("coins.txt");
             m_shop.getSelectedItemIndex();
             m_shop.readCoins();
             m_shop.purchaseBall();
+
             if(m_shop.getSelectedTexture().getSize().x !=0 ||m_shop.getSelectedTexture().getSize().y!=0){
+                float originalWidth = m_shop.getSelectedTexture().getSize().x;
+                float originalHeight = m_shop.getSelectedTexture().getSize().y;
+
+                float desiredWidth = 30.f;
+                float desiredHeight = 30.f;
+
+                float scaleX = desiredWidth / originalWidth;
+                float scaleY = desiredHeight / originalHeight;
+
+                m_ballSprite.setScale(scaleX, scaleY);
             m_ballSprite.setTexture(m_shop.getSelectedTexture());
             }
             else{
+                float originalWidth = m_ballTexture.getSize().x;
+                float originalHeight = m_ballTexture.getSize().y;
+
+                float desiredWidth = 30.f;
+                float desiredHeight = 30.f;
+
+                float scaleX = desiredWidth / originalWidth;
+                float scaleY = desiredHeight / originalHeight;
+
+                m_ballSprite.setScale(scaleX, scaleY);
                 m_ballSprite.setTexture(m_ballTexture);
             }
+
             loadCoinsFromFile("coins.txt");
             m_isInShop = false;
             m_isInMenu = true;
@@ -442,6 +464,7 @@ void Game::render() {
     } else if (m_isInShop) {
         mWindow.draw(m_backgroundSprite);
         m_shop.draw(mWindow);
+
     } else {
         mWindow.draw(m_backgroundSprite);
         mWindow.draw(m_paddleSprite);
@@ -539,22 +562,32 @@ void Game::createPaddle() {
 // tworzenie piłki
 void Game::createBall() {
     if(m_shop.getSelectedTexture().getSize().x !=0 ||m_shop.getSelectedTexture().getSize().y!=0){
+        float originalWidth = m_shop.getSelectedTexture().getSize().x;
+        float originalHeight = m_shop.getSelectedTexture().getSize().y;
+
+        float desiredWidth = 20.f;
+        float desiredHeight = 20.f;
+
+        float scaleX = desiredWidth / originalWidth;
+        float scaleY = desiredHeight / originalHeight;
         m_ballSprite.setTexture(m_shop.getSelectedTexture());
+        m_ballSprite.setScale(scaleX, scaleY);
     }
     else{
         m_ballSprite.setTexture(m_ballTexture);
+        float originalWidth = m_ballTexture.getSize().x;
+        float originalHeight = m_ballTexture.getSize().y;
+
+        float desiredWidth = 20.f;
+        float desiredHeight = 20.f;
+
+        float scaleX = desiredWidth / originalWidth;
+        float scaleY = desiredHeight / originalHeight;
+
+        m_ballSprite.setScale(scaleX, scaleY);
     }
     m_ballSprite.setPosition(864, 600);
-    float originalWidth = m_ballTexture.getSize().x;
-    float originalHeight = m_ballTexture.getSize().y;
 
-    float desiredWidth = 20.f;
-    float desiredHeight = 20.f;
-
-    float scaleX = desiredWidth / originalWidth;
-    float scaleY = desiredHeight / originalHeight;
-
-    m_ballSprite.setScale(scaleX, scaleY);
 }
 // tworzenie bloków
 void Game::createBlocks() {

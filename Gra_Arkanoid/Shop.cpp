@@ -3,19 +3,19 @@
 #include <iostream>
 
 // Funkcje które pozwalają zarządzać daną klasą
-Shop::Shop(float width, float height) {
+Shop::Shop(float width, float height) : animationFrame(0) {
     if (!font.loadFromFile("arial.ttf")) {
         std::cerr << "Error: Could not load font arial.ttf" << std::endl;
     }
 
     // Ładowanie tekstur piłki
-    sf::Texture texture;
-    std::vector<std::string> textureFiles = {"ball1.png", "ball2.png", "ball3.png", "ball4.png", "ball5.png"};
+    std::vector<std::string> textureFiles = {"buzkaball.png", "BIGMACball.png", "G.Sball.png", "minimajkball.png", "ball5.png"};
     for (const auto& file : textureFiles) {
+        sf::Texture texture;
         if (texture.loadFromFile(file)) {
             ballTextures.push_back(texture);
         } else {
-            std::cerr << "Error opening textures files" << std::endl;
+            std::cerr << "Error opening texture file: " << file << std::endl;
         }
     }
 
@@ -23,7 +23,11 @@ Shop::Shop(float width, float height) {
     for (int i = 0; i < int(ballTextures.size()); ++i) {
         sf::Text itemText;
         itemText.setFont(font);
-        itemText.setFillColor(sf::Color::White);
+        int coins = readCoins();
+        if (coins >= ballPrices[i])
+            itemText.setFillColor(sf::Color::Green);
+        else
+            itemText.setFillColor(sf::Color::Red);
         itemText.setString("Ball " + std::to_string(i + 1) + " - " + std::to_string(ballPrices[i]) + " coins");
         itemText.setPosition(sf::Vector2f(width / 3.f, height / (ballTextures.size() + 1) * (i + 1)));
         shopItems.push_back(itemText);
@@ -31,44 +35,93 @@ Shop::Shop(float width, float height) {
 
     shopItems[0].setFillColor(sf::Color::Red);
     selectedItemIndex = 0;
+
+    // ładowanie animowanej tekstury
+    std::vector<std::string> animatedTextureFiles = {"specjal1ball.png", "specjal2ball.png", "specjal3ball.png", "specjal4ball.png", "specjal5ball.png"};
+    for (const auto& file : animatedTextureFiles) {
+        sf::Texture texture;
+        if (texture.loadFromFile(file)) {
+            animatedTextures.push_back(texture);
+        } else {
+            std::cerr << "Error opening animated texture file: " << file << std::endl;
+        }
+    }
+
+    // Initialize animated sprite
+    if (!animatedTextures.empty()) {
+        animatedSprite.setTexture(animatedTextures[0]);
+        animatedSprite.setPosition(1000.f,800.f);
+    }
+
+    animationClock.restart();
 }
 
 void Shop::draw(sf::RenderWindow &window) {
     for (const auto &item : shopItems) {
         window.draw(item);
     }
-    for(int i=0;i<5;i++)
-    {
+    for (int i = 0; i < 4; i++) {
         ballsprite[i].setTexture(ballTextures[i]);
-        ballsprite[i].setPosition(sf::Vector2f(1000.f,( 972.f / (ballTextures.size() + 1) * (i + 1))-25.f));
+        ballsprite[i].setPosition(sf::Vector2f(1000.f, (972.f / (ballTextures.size() + 1) * (i + 1)) - 25.f));
         float originalWidth = ballTextures[i].getSize().x;
         float originalHeight = ballTextures[i].getSize().y;
-        ballsprite[i].setScale(80.f/originalWidth,80.f/originalHeight);
+        ballsprite[i].setScale(80.f / originalWidth, 80.f / originalHeight);
         window.draw(ballsprite[i]);
+    }
+    int coins = readCoins();
+    sf::Text CoinText;
+    CoinText.setFont(font);
+    CoinText.setCharacterSize(80);
+    CoinText.setFillColor(sf::Color::Green);
+    CoinText.setString("Coins: " + std::to_string(coins));
+    CoinText.setPosition(610, 10);
+    window.draw(CoinText);
+
+    // Draw animated sprite
+    updateAnimation();
+    animatedSprite.setScale(0.15,0.15);
+    window.draw(animatedSprite);
+}
+
+void Shop::updateAnimation() {
+    sf::Time elapsed = animationClock.getElapsedTime();
+    if (elapsed.asSeconds() > 0.2f) { // Change frame every 0.1 seconds
+        animationFrame = (animationFrame + 1) % animatedTextures.size();
+        animatedSprite.setTexture(animatedTextures[animationFrame]);
+        animationClock.restart();
     }
 }
 
 // obsługa poruszania się po sklepie
 void Shop::moveUp() {
+    int coins = readCoins();
     if (selectedItemIndex - 1 >= 0) {
-        shopItems[selectedItemIndex].setFillColor(sf::Color::White);
+        if (coins >= ballPrices[selectedItemIndex])
+            shopItems[selectedItemIndex].setFillColor(sf::Color::Green);
+        else
+            shopItems[selectedItemIndex].setFillColor(sf::Color::Red);
         selectedItemIndex--;
-        shopItems[selectedItemIndex].setFillColor(sf::Color::Red);
+        shopItems[selectedItemIndex].setFillColor(sf::Color::White);
     }
 }
 
 // obsługa poruszania się po sklepie
 void Shop::moveDown() {
+    int coins = readCoins();
     if (selectedItemIndex + 1 < int(shopItems.size())) {
-        shopItems[selectedItemIndex].setFillColor(sf::Color::White);
+        if (coins >= ballPrices[selectedItemIndex])
+            shopItems[selectedItemIndex].setFillColor(sf::Color::Green);
+        else
+            shopItems[selectedItemIndex].setFillColor(sf::Color::Red);
         selectedItemIndex++;
-        shopItems[selectedItemIndex].setFillColor(sf::Color::Red);
+        shopItems[selectedItemIndex].setFillColor(sf::Color::White);
     }
 }
 
 sf::Texture& Shop::getSelectedTexture() {
     return ballTextures.at(selectedItemIndex);
 }
+
 int Shop::readCoins() {
     std::ifstream file("coins.txt");
     if (file.is_open()) {
@@ -81,6 +134,7 @@ int Shop::readCoins() {
         return 0;
     }
 }
+
 void Shop::updateCoins(int newBalance) {
     std::ofstream file("coins.txt");
     if (file.is_open()) {
@@ -90,6 +144,7 @@ void Shop::updateCoins(int newBalance) {
         std::cerr << "Error opening coins file" << std::endl;
     }
 }
+
 bool Shop::purchaseBall() {
     int coins = readCoins();
     int ballPrice = ballPrices[selectedItemIndex];
@@ -104,23 +159,22 @@ bool Shop::purchaseBall() {
             std::cerr << "Error: Could not load font arial.ttf" << std::endl;
         }
         coinsText.setFont(font);
-        coinsText.setPosition(180,230);
+        coinsText.setPosition(50, 230);
         coinsText.setString("!NIE MASZ WYSTARCZAJACO PIENIEDZY!");
 
-        bool inCoinstext=true;
+        bool inCoinstext = true;
         while (inCoinstext) {
             sf::Event event;
             while (coinsWindow.pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     inCoinstext = false;
-                }else if (event.type == sf::Event::KeyPressed) {
-                   inCoinstext = false;
+                } else if (event.type == sf::Event::KeyPressed) {
+                    inCoinstext = false;
                 }
-
+            }
             coinsWindow.clear();
             coinsWindow.draw(coinsText);
             coinsWindow.display();
-            }
         }
 
         return false;
