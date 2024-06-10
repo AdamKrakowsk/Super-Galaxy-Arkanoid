@@ -8,10 +8,12 @@ SOURCES += \
         Block.cpp \
         Bonus.cpp \
         Game.cpp \
+        HeartSystem.cpp \
         HighScore.cpp \
         Menu.cpp \
         Object.cpp \
         Paddle.cpp \
+        Projectile.cpp \
         Shop.cpp \
         SoundManager.cpp \
         Timer.cpp \
@@ -29,10 +31,12 @@ HEADERS += \
     Block.h \
     Bonus.h \
     Game.h \
+    HeartSystem.h \
     HighScore.h \
     Menu.h \
     Object.h \
     Paddle.h \
+    Projectile.h \
     Shop.h \
     SoundManager.h \
     Timer.h

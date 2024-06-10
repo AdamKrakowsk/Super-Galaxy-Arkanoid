@@ -161,6 +161,11 @@ void Game::restartGame() {
 
 // korzystanie z przycisków przez użytkowanika
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
+
+    if (key == sf::Keyboard::X && isPressed) {
+        shootProjectile();
+    }
+
     if(m_showGameOverScreen && isPressed && key== sf::Keyboard::Space){
         m_isInMenu = true;
         m_showGameOverScreen = false;
@@ -254,6 +259,32 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
 // obsługiwanie w czasie gry
 void Game::update(sf::Time deltaTime) {
     if (m_gameOver) return;
+
+
+        // Aktualizacja pocisków
+        for (auto& projectile : m_projectiles) {
+        projectile.update(deltaTime);
+    }
+
+    // Usuwanie pocisków poza ekranem
+    m_projectiles.erase(std::remove_if(m_projectiles.begin(), m_projectiles.end(), [](const Projectile& projectile) {
+                            return projectile.getBounds().top + projectile.getBounds().height < 0;
+                        }), m_projectiles.end());
+
+    // Sprawdzanie kolizji pocisków z blokami
+    for (auto& projectile : m_projectiles) {
+        for (auto& object : m_objects) {
+            if (projectile.getBounds().intersects(object->getBounds())) {
+                object->takeDamage();
+
+                // Usuwanie pocisku po trafieniu
+                projectile = m_projectiles.back();
+                m_projectiles.pop_back();
+                break;
+            }
+        }
+    }
+
 
 
     sf::Vector2f movement(0.f, 0.f);
@@ -505,6 +536,9 @@ void Game::render() {
 
         }
     }
+    for (auto& projectile : m_projectiles) {
+        projectile.render(mWindow);
+    }
     mWindow.display();
 }
 
@@ -678,4 +712,11 @@ void Game::showSettings() {
 
 void Game::showShop() {
     m_isInShop = true;
+}
+
+void Game::shootProjectile() {
+    if (m_shootClock.getElapsedTime().asSeconds() > 0.75f) { // Ograniczenie strzałów do jednego co 0.75 sekundy
+        m_projectiles.emplace_back(m_paddleSprite.getPosition().x + m_paddleSprite.getGlobalBounds().width / 2.f, m_paddleSprite.getPosition().y);
+        m_shootClock.restart();
+    }
 }

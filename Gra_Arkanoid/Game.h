@@ -15,6 +15,7 @@
 #include "Menu.h"
 #include "Shop.h"
 #include "HeartSystem.h"
+#include "Projectile.h"
 
 class Object;
 
@@ -102,6 +103,10 @@ private:
     Shop m_shop;
     bool m_isInMenu;
     bool m_isInShop;
+
+    std::vector<Projectile> m_projectiles;
+    sf::Clock m_shootClock;
+    void shootProjectile();
 };
 
 #endif // GAME_H
