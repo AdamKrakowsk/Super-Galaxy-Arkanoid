@@ -9,7 +9,7 @@ Shop::Shop(float width, float height) : animationFrame(0) {
     }
 
     // Ładowanie tekstur piłki
-    std::vector<std::string> textureFiles = {"buzkaball.png", "BIGMACball.png", "G.Sball.png", "minimajkball.png", "ball5.png"};
+    std::vector<std::string> textureFiles = {"buzkaball.png", "BIGMACball.png", "G.Sball.png", "minimajkball.png","ball5.png"};
     for (const auto& file : textureFiles) {
         sf::Texture texture;
         if (texture.loadFromFile(file)) {
@@ -20,7 +20,7 @@ Shop::Shop(float width, float height) : animationFrame(0) {
     }
 
     // Inicjalizacja przedmiotów w sklepie
-    for (int i = 0; i < int(ballTextures.size()); ++i) {
+    for (int i = 0; i < int(5); ++i) {
         sf::Text itemText;
         itemText.setFont(font);
         int coins = readCoins();
@@ -29,7 +29,8 @@ Shop::Shop(float width, float height) : animationFrame(0) {
         else
             itemText.setFillColor(sf::Color::Red);
         itemText.setString("Ball " + std::to_string(i + 1) + " - " + std::to_string(ballPrices[i]) + " coins");
-        itemText.setPosition(sf::Vector2f(width / 3.f, height / (ballTextures.size() + 1) * (i + 1)));
+        itemText.setPosition(sf::Vector2f(width / 3.f, height / 6
+                                                           * (i + 1)));
         itemText.setCharacterSize(48);
         shopItems.push_back(itemText);
     }
@@ -37,33 +38,16 @@ Shop::Shop(float width, float height) : animationFrame(0) {
     shopItems[0].setFillColor(sf::Color::Red);
     selectedItemIndex = 0;
 
-    // ładowanie animowanej tekstury
-    std::vector<std::string> animatedTextureFiles = {"specjal1ball.png", "specjal2ball.png", "specjal3ball.png", "specjal4ball.png", "specjal5ball.png"};
-    for (const auto& file : animatedTextureFiles) {
-        sf::Texture texture;
-        if (texture.loadFromFile(file)) {
-            animatedTextures.push_back(texture);
-        } else {
-            std::cerr << "Error opening animated texture file: " << file << std::endl;
-        }
-    }
-
-    // Inicjalizacja Sprite animacji
-    if (!animatedTextures.empty()) {
-        animatedSprite.setTexture(animatedTextures[0]);
-        animatedSprite.setPosition(1000.f,800.f);
-    }
-
-    animationClock.restart();
 }
 
 void Shop::draw(sf::RenderWindow &window) {
     for (const auto &item : shopItems) {
         window.draw(item);
     }
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         ballsprite[i].setTexture(ballTextures[i]);
-        ballsprite[i].setPosition(sf::Vector2f(1000.f, (972.f / (ballTextures.size() + 1) * (i + 1)) - 25.f));
+        ballsprite[i].setPosition(sf::Vector2f(1000.f, (972.f / 6
+                                                        * (i + 1)) - 25.f));
         float originalWidth = ballTextures[i].getSize().x;
         float originalHeight = ballTextures[i].getSize().y;
         ballsprite[i].setScale(80.f / originalWidth, 80.f / originalHeight);
@@ -77,20 +61,6 @@ void Shop::draw(sf::RenderWindow &window) {
     CoinText.setString("Coins: " + std::to_string(coins));
     CoinText.setPosition(610, 10);
     window.draw(CoinText);
-
-    // Rysowanie animacji sprite
-    updateAnimation();
-    animatedSprite.setScale(0.15,0.15);
-    window.draw(animatedSprite);
-}
-
-void Shop::updateAnimation() {
-    sf::Time elapsed = animationClock.getElapsedTime();
-    if (elapsed.asSeconds() > 0.2f) { // zmiana klatki co 0.1s
-        animationFrame = (animationFrame + 1) % animatedTextures.size();
-        animatedSprite.setTexture(animatedTextures[animationFrame]);
-        animationClock.restart();
-    }
 }
 
 // obsługa poruszania się po sklepie
@@ -122,7 +92,6 @@ void Shop::moveDown() {
 sf::Texture& Shop::getSelectedTexture() {
     return ballTextures.at(selectedItemIndex);
 }
-
 int Shop::readCoins() {
     std::ifstream file("coins.txt");
     if (file.is_open()) {

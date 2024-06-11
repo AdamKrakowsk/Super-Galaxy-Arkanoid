@@ -19,7 +19,7 @@ Game::Game()
     m_ball(m_ballTexture),
     m_heartSystem(3, m_heartTexture, 100.f, 100.f),
     m_PaddleSpeed(900.0f),
-    m_BallSpeed(800.0f),
+    m_BallSpeed(500.0f),
     m_lives(3),
     m_ballVelocity(-m_BallSpeed, -m_BallSpeed),
     m_highscore(),
@@ -203,6 +203,7 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
             m_shop.purchaseBall();
 
             if(m_shop.getSelectedTexture().getSize().x !=0 ||m_shop.getSelectedTexture().getSize().y!=0){
+
                 float originalWidth = m_shop.getSelectedTexture().getSize().x;
                 float originalHeight = m_shop.getSelectedTexture().getSize().y;
 
@@ -214,7 +215,7 @@ void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
 
                 m_ballSprite.setScale(scaleX, scaleY);
             m_ballSprite.setTexture(m_shop.getSelectedTexture());
-            }
+            }         
             else{
                 float originalWidth = m_ballTexture.getSize().x;
                 float originalHeight = m_ballTexture.getSize().y;
@@ -363,7 +364,7 @@ void Game::update(sf::Time deltaTime) {
                 object->takeDamage();
                 sm.collision_sound();
                 if (object->isDestroyed()) {
-                    bonuslos=rand()%30;
+                    bonuslos=rand()%4;
                     switch (bonuslos) {
                     case 0: {
                         if (!m_bonusTexture.loadFromFile("przyspieszeniepilki.png")) {
@@ -623,17 +624,17 @@ void Game::createBall() {
     m_ballSprite.setPosition(864, 600);
 
 }
-// tworzenie bloków
+// tworzenie bloków i zmiana poziomu trudnosci
 void Game::createBlocks() {
 
     // Tworzenie przykładowych bloków i wierszy i kolumn
-    int rows = 6;
-    int columns = 17; //17
+    int rows = 2;  //zmiana poziomu trudnosci
+    int columns = 12; //zmiana poziomu trudnosci
     float blockWidth = 80.f;
     float blockHeight = 30.f;
-    float startX = 30.f;        // miejsca początkowe 30
     float startY = 100.f;
     float horizontalSpacing = 20.f; // Odstęp w poziomie
+    float startX = mWindow.getSize().x/2-(columns*((blockWidth+horizontalSpacing)/2));// miejsca początkowe
     float verticalSpacing = 20.f; // Odstęp w pionie
     srand(time(0));         // dodanie losowości
     int tab[columns][rows];

@@ -13,13 +13,15 @@ public:
     void moveDown();
     int getSelectedItemIndex() const { return selectedItemIndex; }
     sf::Texture& getSelectedTexture();
-    std::vector<int> ballPrices = {10, 20, 30, 40, 50};
+    sf::Sprite& getaniamatedsprite();
+    std::vector<int> ballPrices = {100, 250, 500, 500, 1000};
     int readCoins();
     void updateCoins(int newBalance);
     void animation(sf::RenderWindow &window);
     bool purchaseBall();
     sf::Texture arrayOfTexture[9];
     sf::Sprite animatedBall;
+    sf::Sprite animatedSprite;
 
 private:
     int selectedItemIndex;
@@ -29,7 +31,6 @@ private:
     sf::Sprite ballsprite[6];
     sf::Text coinsText;
     std::vector<sf::Texture> animatedTextures;
-    sf::Sprite animatedSprite;
     sf::Clock animationClock;
     int animationFrame;
 
