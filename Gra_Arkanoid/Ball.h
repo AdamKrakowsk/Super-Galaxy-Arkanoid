@@ -16,8 +16,6 @@ public:
     void takeDamage() override;
     bool isDestroyed() const override;
 
-    // void setVelocity(const sf::Vector2f& velocity);
-    // const sf::Vector2f& getVelocity() const;
     void handleCollision(Object& object);
     void setPosition(float x, float y);
     sf::FloatRect getBounds() const override;

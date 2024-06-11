@@ -7,6 +7,7 @@
 
 class HeartSystem {
 public:
+    // Deklaracja funkcji i zmiennych
     HeartSystem(int initialHearts, const sf::Texture& heartTexture, float x, float y);
     void draw(sf::RenderWindow& window);
     void loseHeart();

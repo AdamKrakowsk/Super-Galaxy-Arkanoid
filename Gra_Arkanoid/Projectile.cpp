@@ -1,6 +1,7 @@
 #include "Projectile.h"
 #include <iostream>
 
+// Funkcje które pozwalają zarządzać daną klasą
 Projectile::Projectile(float x, float y)
     : m_speed(1300.0f) {
     if (!m_texture.loadFromFile("projectile.png")) {

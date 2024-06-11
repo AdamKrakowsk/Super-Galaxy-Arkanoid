@@ -1,5 +1,6 @@
 #include "HeartSystem.h"
 
+// Funkcje które pozwalają zarządzać daną klasą
 HeartSystem::HeartSystem(int initialHearts, const sf::Texture& heartTexture, float x, float y)
     : m_initialHearts(initialHearts), m_x(x), m_y(y)
 {

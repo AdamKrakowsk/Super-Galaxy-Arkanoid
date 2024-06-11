@@ -13,7 +13,7 @@ void Block::draw(sf::RenderWindow& window) const {
 }
 
 void Block::update(float dt) {
-    // Bloki nie potrzebują aktualizacji co klatkę, chyba że mają jakieś animacje lub inne właściwości
+
 }
 
 

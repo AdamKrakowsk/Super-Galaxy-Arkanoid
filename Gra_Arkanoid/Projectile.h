@@ -5,6 +5,7 @@
 
 class Projectile {
 public:
+    // Deklaracja funkcji i zmiennych
     Projectile(float x, float y);
     void update(sf::Time deltaTime);
     void render(sf::RenderWindow& window);

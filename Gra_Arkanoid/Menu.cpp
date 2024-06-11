@@ -17,26 +17,31 @@ Menu::Menu(float width, float height) {
     playText.setFillColor(sf::Color::Red);
     playText.setString("Play");
     playText.setPosition(sf::Vector2f(width / 5.f, height / (6.f + 1) * 1.f));
+    playText.setCharacterSize(72); // Ustawienie rozmiaru tekstu
 
     highscoreText.setFont(font);
     highscoreText.setFillColor(sf::Color::White);
     highscoreText.setString("Highscore");
     highscoreText.setPosition(sf::Vector2f(width / 5.f, height / (6.f + 1) * 2.f));
+    highscoreText.setCharacterSize(72);
 
     settingsText.setFont(font);
     settingsText.setFillColor(sf::Color::White);
     settingsText.setString("Settings");
     settingsText.setPosition(sf::Vector2f(width / 5.f, height / (6.f + 1) * 3.f));
+    settingsText.setCharacterSize(72);
 
     shopText.setFont(font);
     shopText.setFillColor(sf::Color::White);
     shopText.setString("Shop");
     shopText.setPosition(sf::Vector2f(width / 5.f, height / (6.f + 1) * 4.f));
+    shopText.setCharacterSize(72);
 
     exitText.setFont(font);
     exitText.setFillColor(sf::Color::White);
     exitText.setString("Exit");
     exitText.setPosition(sf::Vector2f(width / 5.f, height / (6.f + 1) * 5.f));
+    exitText.setCharacterSize(72);
 
 
     menuItems.push_back(playText);
@@ -86,6 +91,7 @@ void Menu::showSettings(std::function<void(int, int)> setVolumes) {
     settingsText.setFillColor(sf::Color::Green);
     settingsText.setString("OPCJE");
     settingsText.setPosition(20.f, 20.f);
+
 
     settingsText1.setFont(font);
     settingsText1.setFillColor(sf::Color::Green);

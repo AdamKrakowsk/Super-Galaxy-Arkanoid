@@ -30,6 +30,7 @@ Shop::Shop(float width, float height) : animationFrame(0) {
             itemText.setFillColor(sf::Color::Red);
         itemText.setString("Ball " + std::to_string(i + 1) + " - " + std::to_string(ballPrices[i]) + " coins");
         itemText.setPosition(sf::Vector2f(width / 3.f, height / (ballTextures.size() + 1) * (i + 1)));
+        itemText.setCharacterSize(48);
         shopItems.push_back(itemText);
     }
 
@@ -47,7 +48,7 @@ Shop::Shop(float width, float height) : animationFrame(0) {
         }
     }
 
-    // Initialize animated sprite
+    // Inicjalizacja Sprite animacji
     if (!animatedTextures.empty()) {
         animatedSprite.setTexture(animatedTextures[0]);
         animatedSprite.setPosition(1000.f,800.f);
@@ -77,7 +78,7 @@ void Shop::draw(sf::RenderWindow &window) {
     CoinText.setPosition(610, 10);
     window.draw(CoinText);
 
-    // Draw animated sprite
+    // Rysowanie animacji sprite
     updateAnimation();
     animatedSprite.setScale(0.15,0.15);
     window.draw(animatedSprite);
@@ -85,7 +86,7 @@ void Shop::draw(sf::RenderWindow &window) {
 
 void Shop::updateAnimation() {
     sf::Time elapsed = animationClock.getElapsedTime();
-    if (elapsed.asSeconds() > 0.2f) { // Change frame every 0.1 seconds
+    if (elapsed.asSeconds() > 0.2f) { // zmiana klatki co 0.1s
         animationFrame = (animationFrame + 1) % animatedTextures.size();
         animatedSprite.setTexture(animatedTextures[animationFrame]);
         animationClock.restart();
@@ -151,7 +152,6 @@ bool Shop::purchaseBall() {
     if (coins >= ballPrice) {
         int newBalance = coins - ballPrice;
         updateCoins(newBalance);
-        // Add the purchased ball's texture to the game or perform any other necessary actions
         return true;
     } else {
         sf::RenderWindow coinsWindow(sf::VideoMode(700, 500), "Settings");
